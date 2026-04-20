@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/access-request/my-request/my-requests.css"],
+  "sourcesContent": ["table th,\r\ntable td {\r\n  white-space: nowrap;\r\n}\r\n"],
+  "mappings": ";AAAA,MAAA;;AAEE,eAAA;AACF;",
+  "names": []
+}

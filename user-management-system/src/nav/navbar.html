@@ -1,0 +1,50 @@
+<mat-toolbar
+  color="primary"
+  class="h-auto min-h-16 flex-wrap gap-3 px-3 py-2 sm:px-4 sticky top-0 z-50 shadow-md"
+>
+  <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
+    <span class="truncate text-lg font-bold tracking-tight sm:text-xl">UserSystem</span>
+    @if (authService.isAuthenticated()) {
+      <nav class="flex flex-wrap items-center gap-1 sm:gap-2">
+        <a mat-button routerLink="/home" routerLinkActive="bg-white/20" class="!min-w-0">
+          <mat-icon class="mr-1">home</mat-icon> Home
+        </a>
+        <a mat-button routerLink="/profile" routerLinkActive="bg-white/20" class="!min-w-0">
+          <mat-icon class="mr-1">person</mat-icon> Profile
+        </a>
+        @if (!authService.isAdmin()) {
+          <a mat-button routerLink="/access-requests/create" routerLinkActive="bg-white/20" class="!min-w-0">
+            <mat-icon class="mr-1">post_add</mat-icon> Tao yeu cau
+          </a>
+          <a mat-button routerLink="/access-requests/mine" routerLinkActive="bg-white/20" class="!min-w-0">
+            <mat-icon class="mr-1">receipt_long</mat-icon> Yeu cau cua toi
+          </a>
+        }
+        @if (authService.isAdmin()) {
+          <a mat-button routerLink="/admin" routerLinkActive="bg-white/20" class="!min-w-0">
+            <mat-icon class="mr-1">admin_panel_settings</mat-icon> Admin
+          </a>
+        }
+        @if (authService.hasAnyRole(['admin', 'manager'])) {
+          <a mat-button routerLink="/camunda/tasks" routerLinkActive="bg-white/20" class="!min-w-0">
+            <mat-icon class="mr-1">task_alt</mat-icon> Task cho xu ly
+          </a>
+        }
+      </nav>
+    }
+  </div>
+
+  <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
+    @if (authService.isAuthenticated()) {
+      <span class="mr-1 hidden text-sm sm:inline">
+        Hi, {{ authService.currentUser()?.preferred_username }}
+      </span>
+      <button mat-stroked-button color="warn" (click)="authService.logout()">
+        <mat-icon>logout</mat-icon> Logout
+      </button>
+    } @else {
+      <a mat-stroked-button routerLink="/login">Login</a>
+      <a mat-raised-button color="accent" routerLink="/register">Register</a>
+    }
+  </div>
+</mat-toolbar>

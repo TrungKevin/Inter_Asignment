@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/access-request/create-request/create-request.css"],
+  "sourcesContent": [".mat-mdc-form-field {\r\n  display: block;\r\n}\r\n"],
+  "mappings": ";AAAA,CAAA;AACE,WAAA;AACF;",
+  "names": []
+}

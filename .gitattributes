@@ -1,0 +1,2 @@
+camunda-modeler-5.45.0-win-x64/Camunda[[:space:]]Modeler.exe filter=lfs diff=lfs merge=lfs -text
+camunda-modeler-5.45.0-win-x64/resources/app.asar filter=lfs diff=lfs merge=lfs -text

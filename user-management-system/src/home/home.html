@@ -1,0 +1,69 @@
+<div class="mx-auto max-w-5xl px-1 py-2 sm:px-2">
+  <div class="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-indigo-600 p-6 text-white shadow-2xl sm:mb-10 sm:p-10">
+    <div class="relative z-10">
+      <h1 class="mb-3 text-3xl font-extrabold tracking-tight sm:mb-4 sm:text-4xl lg:text-5xl">
+        Xin chào, {{ authService.currentUser()?.preferred_username }}!
+      </h1>
+      <p class="mb-6 max-w-2xl text-base opacity-90 sm:mb-8 sm:text-lg lg:text-xl">
+        Welcome to your personalized dashboard. Manage your profile, explore features, and stay connected.
+      </p>
+      <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
+        <a mat-raised-button color="accent" routerLink="/profile" class="!m-0 rounded-xl px-6 py-3 text-base sm:px-8 sm:py-6 sm:text-lg">
+          <mat-icon class="mr-2">person</mat-icon> View Profile
+        </a>
+        @if (!authService.isAdmin()) {
+          <a mat-stroked-button routerLink="/access-requests/create" class="!m-0 rounded-xl px-6 py-3 text-base sm:px-8 sm:py-6 sm:text-lg">
+            <mat-icon class="mr-2">post_add</mat-icon> Tao yeu cau
+          </a>
+          <a mat-stroked-button routerLink="/access-requests/mine" class="!m-0 rounded-xl px-6 py-3 text-base sm:px-8 sm:py-6 sm:text-lg">
+            <mat-icon class="mr-2">receipt_long</mat-icon> Yeu cau cua toi
+          </a>
+        }
+        @if (authService.isAdmin()) {
+          <a
+            mat-stroked-button
+            class="!m-0 rounded-xl border-white px-6 py-3 text-base text-white hover:bg-white/10 sm:px-8 sm:py-6 sm:text-lg"
+            routerLink="/admin"
+          >
+            <mat-icon class="mr-2">admin_panel_settings</mat-icon> Admin Panel
+          </a>
+        }
+        @if (authService.hasAnyRole(['admin', 'manager'])) {
+          <a mat-stroked-button class="!m-0 rounded-xl border-white px-6 py-3 text-base text-white hover:bg-white/10 sm:px-8 sm:py-6 sm:text-lg" routerLink="/camunda/tasks">
+            <mat-icon class="mr-2">task_alt</mat-icon> Task cho xu ly
+          </a>
+        }
+      </div>
+    </div>
+    
+    <!-- Decorative elements -->
+    <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+    <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-accent/20 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
+    <mat-card class="p-6 rounded-2xl border-none shadow-md hover:shadow-lg transition-shadow">
+      <div class="bg-blue-100 p-3 rounded-xl w-fit mb-4">
+        <mat-icon color="primary">security</mat-icon>
+      </div>
+      <h3 class="text-lg font-bold mb-2">Secure Access</h3>
+      <p class="text-slate-600 text-sm">Your data is protected with industry-standard encryption and Keycloak security.</p>
+    </mat-card>
+
+    <mat-card class="p-6 rounded-2xl border-none shadow-md hover:shadow-lg transition-shadow">
+      <div class="bg-emerald-100 p-3 rounded-xl w-fit mb-4">
+        <mat-icon class="text-emerald-600">speed</mat-icon>
+      </div>
+      <h3 class="text-lg font-bold mb-2">Fast Performance</h3>
+      <p class="text-slate-600 text-sm">Experience lightning-fast interactions powered by Angular's latest features.</p>
+    </mat-card>
+
+    <mat-card class="p-6 rounded-2xl border-none shadow-md hover:shadow-lg transition-shadow">
+      <div class="bg-amber-100 p-3 rounded-xl w-fit mb-4">
+        <mat-icon class="text-amber-600">devices</mat-icon>
+      </div>
+      <h3 class="text-lg font-bold mb-2">Responsive UI</h3>
+      <p class="text-slate-600 text-sm">Access your account seamlessly from any device, anywhere in the world.</p>
+    </mat-card>
+  </div>
+</div>

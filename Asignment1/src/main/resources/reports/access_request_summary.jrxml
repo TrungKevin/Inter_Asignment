@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.19.0.final -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+  xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd
+  http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd"
+  name="access_request_summary"
+  pageWidth="595"
+  pageHeight="842"
+  columnWidth="555"
+  leftMargin="20"
+  rightMargin="20"
+  topMargin="20"
+  bottomMargin="20"
+  uuid="2a651c3d-9a3d-4d5a-bb2c-8a9b1f3f5b4a">
+
+  <!-- Dataset: request_history rows -->
+  <subDataset name="HistoryDataset" uuid="b91b02f7-0c3a-4b04-b4ce-2d5a7d0f2ed2">
+    <field name="createdAt" class="java.lang.String"/>
+    <field name="actorUsername" class="java.lang.String"/>
+    <field name="action" class="java.lang.String"/>
+    <field name="comment" class="java.lang.String"/>
+  </subDataset>
+
+  <!-- Dataset: access_request_lines rows -->
+  <subDataset name="LinesDataset" uuid="feff0a3b-5c5a-4d9a-8fbb-6c11f05cb1d2">
+    <field name="lineId" class="java.lang.Long"/>
+    <field name="roleCode" class="java.lang.String"/>
+    <field name="resourceType" class="java.lang.String"/>
+    <field name="provisionStatus" class="java.lang.String"/>
+    <field name="errorMessage" class="java.lang.String"/>
+  </subDataset>
+
+  <!-- Params: main header + 2 datasources for tables -->
+  <parameter name="p_requestId" class="java.lang.Long"/>
+  <parameter name="p_businessKey" class="java.lang.String"/>
+  <parameter name="p_processInstanceId" class="java.lang.String"/>
+  <parameter name="p_requesterUsername" class="java.lang.String"/>
+  <parameter name="p_departmentCode" class="java.lang.String"/>
+  <parameter name="p_status" class="java.lang.String"/>
+  <parameter name="p_rejectionReason" class="java.lang.String"/>
+  <parameter name="p_createdAt" class="java.lang.String"/>
+  <parameter name="p_updatedAt" class="java.lang.String"/>
+
+  <parameter name="p_historyDataSource" class="net.sf.jasperreports.engine.JRDataSource"/>
+  <parameter name="p_linesDataSource" class="net.sf.jasperreports.engine.JRDataSource"/>
+
+  <background>
+    <band splitType="Stretch"/>
+  </background>
+
+  <!-- ===== Title ===== -->
+  <title>
+    <band height="90" splitType="Stretch">
+      <staticText>
+        <reportElement x="0" y="0" width="555" height="30" uuid="b3c8d3f8-0a92-4c56-8c71-8a1b0a6b8d6f"/>
+        <textElement textAlignment="Center" verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="18" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+        </textElement>
+        <text><![CDATA[BIÊN BẢN CẤP QUYỀN]]></text>
+      </staticText>
+
+      <staticText>
+        <reportElement x="0" y="40" width="110" height="18" uuid="01b2b33a-8a5f-4ed2-bcd1-4c5d60c0c3d8"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true" isBold="true"/>
+        </textElement>
+        <text><![CDATA[Request ID:]]></text>
+      </staticText>
+      <textField>
+        <reportElement x="115" y="40" width="160" height="18" uuid="f9b9e6b4-8e2d-4fd4-82a5-546b2b2b2f7f"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$P{p_requestId}]]></textFieldExpression>
+      </textField>
+
+      <staticText>
+        <reportElement x="285" y="40" width="90" height="18" uuid="9c4c9d82-8df1-4c3d-a3e4-54a8a5b3411a"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true" isBold="true"/>
+        </textElement>
+        <text><![CDATA[Status:]]></text>
+      </staticText>
+      <textField>
+        <reportElement x="375" y="40" width="180" height="18" uuid="1b2ae980-9e93-4c6b-9b3b-6c94b84f9f60"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$P{p_status}]]></textFieldExpression>
+      </textField>
+
+      <staticText>
+        <reportElement x="0" y="62" width="110" height="18" uuid="b7f8f7d7-83f4-4d92-bc0b-5b7cf5f2d6c6"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true" isBold="true"/>
+        </textElement>
+        <text><![CDATA[Requester:]]></text>
+      </staticText>
+      <textField>
+        <reportElement x="115" y="62" width="160" height="18" uuid="f4ff3b9a-7c3c-4f9d-8d4c-42e8dbf2b5aa"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$P{p_requesterUsername}]]></textFieldExpression>
+      </textField>
+
+      <staticText>
+        <reportElement x="285" y="62" width="90" height="18" uuid="4b6f68db-7f49-4f85-9ffb-1f8c8d55aa72"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true" isBold="true"/>
+        </textElement>
+        <text><![CDATA[Dept:]]></text>
+      </staticText>
+      <textField>
+        <reportElement x="375" y="62" width="180" height="18" uuid="745c5c6b-8d3c-4c98-9c1d-9f4d9b8a7e3d"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$P{p_departmentCode}]]></textFieldExpression>
+      </textField>
+    </band>
+  </title>
+
+  <!-- ===== Detail ===== -->
+  <detail>
+    <band height="520" splitType="Stretch">
+
+      <!-- Rejection reason (optional) -->
+      <staticText>
+        <reportElement x="0" y="0" width="110" height="18" uuid="ae9bdc0b-98bb-49aa-9a88-2ee1a6f9898e"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true" isBold="true"/>
+        </textElement>
+        <text><![CDATA[Reason:]]></text>
+      </staticText>
+      <textField textAdjust="StretchHeight">
+        <reportElement x="115" y="0" width="440" height="18" uuid="1c0f3f22-7f4b-4c16-8e61-9dfb9f5e2bb7"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="11" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+        </textElement>
+        <textFieldExpression><![CDATA[$P{p_rejectionReason}]]></textFieldExpression>
+      </textField>
+
+      <!-- ===== History table ===== -->
+      <staticText>
+        <reportElement x="0" y="35" width="555" height="20" uuid="2f67a7d6-6d1a-4b9e-9b89-82dfd3a0cf1e"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="13" pdfEncoding="Identity-H" isPdfEmbedded="true" isBold="true"/>
+        </textElement>
+        <text><![CDATA[Lịch sử phê duyệt]]></text>
+      </staticText>
+
+      <componentElement>
+        <reportElement x="0" y="60" width="555" height="200" uuid="f7f1d4d0-f0e5-4b58-9b6b-9c7cb7d9d964"/>
+        <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+          xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+          <datasetRun subDataset="HistoryDataset">
+            <dataSourceExpression><![CDATA[$P{p_historyDataSource}]]></dataSourceExpression>
+          </datasetRun>
+          <jr:listContents height="20" width="555">
+            <textField>
+              <reportElement x="0" y="0" width="100" height="20" uuid="2db91bb5-98a2-4caa-a2db-37dd8bfbe7d5"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{createdAt}]]></textFieldExpression>
+            </textField>
+            <textField>
+              <reportElement x="105" y="0" width="110" height="20" uuid="b0c2c9fb-1f20-4d01-8b9c-1d7eae2d0ac0"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{actorUsername}]]></textFieldExpression>
+            </textField>
+            <textField>
+              <reportElement x="220" y="0" width="100" height="20" uuid="bb5b3e8c-f8c8-45a6-8c12-cc8c1d85e5a2"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{action}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight">
+              <reportElement x="325" y="0" width="230" height="20" uuid="a42dbe8b-1a9c-4dd5-ae34-13b9ee9b5a63"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{comment}]]></textFieldExpression>
+            </textField>
+          </jr:listContents>
+        </jr:list>
+      </componentElement>
+
+      <!-- ===== Lines table ===== -->
+      <staticText>
+        <reportElement x="0" y="275" width="555" height="20" uuid="4aeaa7f4-70c0-4b10-873b-d0f2b3159b8b"/>
+        <textElement verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="13" pdfEncoding="Identity-H" isPdfEmbedded="true" isBold="true"/>
+        </textElement>
+        <text><![CDATA[Danh sách quyền yêu cầu]]></text>
+      </staticText>
+
+      <componentElement>
+        <reportElement x="0" y="300" width="555" height="200" uuid="c8dbb12c-22f0-4afc-9ea8-37d40b60b8d7"/>
+        <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+          xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+          <datasetRun subDataset="LinesDataset">
+            <dataSourceExpression><![CDATA[$P{p_linesDataSource}]]></dataSourceExpression>
+          </datasetRun>
+          <jr:listContents height="20" width="555">
+            <textField>
+              <reportElement x="0" y="0" width="50" height="20" uuid="e74b39f3-90be-4d15-9828-7e7a1e13b57d"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{lineId}]]></textFieldExpression>
+            </textField>
+            <textField>
+              <reportElement x="55" y="0" width="120" height="20" uuid="a867a5cc-57d5-4d67-9d7e-95b29e0d6a35"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{roleCode}]]></textFieldExpression>
+            </textField>
+            <textField>
+              <reportElement x="180" y="0" width="120" height="20" uuid="d58a9d44-5bf2-4055-8f9c-4c6c6d9f2e9c"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{resourceType}]]></textFieldExpression>
+            </textField>
+            <textField>
+              <reportElement x="305" y="0" width="90" height="20" uuid="d5d9f33c-b6f3-4c70-b0b4-52a1a1c8719d"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{provisionStatus}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight">
+              <reportElement x="400" y="0" width="155" height="20" uuid="4f37bca5-7c2b-4d62-9c0b-6d4c2bce7df9"/>
+              <textElement verticalAlignment="Middle">
+                <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+              </textElement>
+              <textFieldExpression><![CDATA[$F{errorMessage}]]></textFieldExpression>
+            </textField>
+          </jr:listContents>
+        </jr:list>
+      </componentElement>
+    </band>
+  </detail>
+
+  <pageFooter>
+    <band height="30" splitType="Stretch">
+      <textField>
+        <reportElement x="0" y="5" width="555" height="20" uuid="95c2ac4a-2e20-4a8a-8f93-84d4e4cc5d98"/>
+        <textElement textAlignment="Right" verticalAlignment="Middle">
+          <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+        </textElement>
+        <textFieldExpression><![CDATA["Trang " + $V{PAGE_NUMBER}]]></textFieldExpression>
+      </textField>
+    </band>
+  </pageFooter>
+</jasperReport>

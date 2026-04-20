@@ -1,0 +1,89 @@
+<div class="mx-auto max-w-4xl px-1 py-2 sm:px-2">
+  @if (errorMessage()) {
+    <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <mat-card class="overflow-hidden rounded-3xl shadow-xl border-none">
+    <div class="h-32 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+    
+    <div class="relative -mt-12 px-4 pb-6 sm:px-8 sm:pb-8">
+      <div class="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-end">
+        <div class="w-32 h-32 rounded-2xl bg-white p-1 shadow-lg">
+          <div class="w-full h-full rounded-xl bg-slate-100 flex items-center justify-center">
+            <mat-icon class="scale-[3] text-slate-300">person</mat-icon>
+          </div>
+        </div>
+        <div class="flex-1 pb-2">
+          <h1 class="text-3xl font-bold text-slate-800 leading-tight">
+            {{ user()?.username || authService.currentUser()?.preferred_username }}
+          </h1>
+          <p class="text-slate-500 flex items-center gap-1">
+            <mat-icon class="text-sm w-4 h-4">email</mat-icon>
+            {{ user()?.email || authService.currentUser()?.email }}
+          </p>
+        </div>
+        <div class="pb-2">
+          <mat-chip-set>
+            @for (role of authService.currentUser()?.realm_access?.roles; track role) {
+              <mat-chip class="bg-primary/10 text-primary border-none">{{ role }}</mat-chip>
+            }
+          </mat-chip-set>
+        </div>
+      </div>
+
+      <mat-divider class="mb-8"></mat-divider>
+
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+        <div>
+          <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Account Details</h3>
+          <div class="space-y-4">
+            <div class="flex flex-col">
+              <span class="text-xs text-slate-500">User ID</span>
+              <span class="font-mono text-sm text-slate-700">{{ user()?.userId || authService.currentUser()?.sub }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs text-slate-500">Username</span>
+              <span class="text-slate-700">{{ user()?.username || authService.currentUser()?.preferred_username }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs text-slate-500">Email Address</span>
+              <span class="text-slate-700">{{ user()?.email || authService.currentUser()?.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Identity Info</h3>
+          <div class="space-y-4">
+            <div class="flex flex-col">
+              <span class="text-xs text-slate-500">Full Name</span>
+              <span class="text-slate-700">{{ authService.currentUser()?.name || 'N/A' }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs text-slate-500">Given Name</span>
+              <span class="text-slate-700">{{ authService.currentUser()?.given_name || 'N/A' }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xs text-slate-500">Family Name</span>
+              <span class="text-slate-700">{{ authService.currentUser()?.family_name || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+<!--      @if (authService.isAdmin()) {-->
+<!--        <div class="mt-12 p-6 bg-amber-50 rounded-2xl border border-amber-100 flex items-center gap-4">-->
+<!--          <div class="bg-amber-100 p-3 rounded-xl">-->
+<!--            <mat-icon class="text-amber-600">admin_panel_settings</mat-icon>-->
+<!--          </div>-->
+<!--          <div>-->
+<!--            <h4 class="font-bold text-amber-900">Administrator Privileges</h4>-->
+<!--            <p class="text-amber-700 text-sm">You have full access to the user management system and system settings.</p>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      }-->
+    </div>
+  </mat-card>
+</div>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+  xmlns:camunda="http://camunda.org/schema/1.0/dmn"
+  xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+  xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+  xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+  id="Definitions_AccessLevel"
+  name="DRD"
+  namespace="http://camunda.org/schema/1.0/dmn"
+  exporter="Camunda Modeler"
+  exporterVersion="5.0.0">
+  <decision id="access-level-decision" name="Access Level Decision" camunda:historyTimeToLive="30">
+    <decisionTable id="DecisionTable_1" hitPolicy="FIRST">
+      <input id="Input_1" label="Department">
+        <inputExpression id="InputExpression_1" typeRef="string">
+          <text>upper case(department)</text>
+        </inputExpression>
+      </input>
+      <input id="Input_2" label="Role Count">
+        <inputExpression id="InputExpression_2" typeRef="integer">
+          <text>roleCount</text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="Approval Level" name="approvalLevel" typeRef="integer" />
+
+      <rule id="Rule_1">
+        <inputEntry id="UnaryTests_1"><text>"IT"</text></inputEntry>
+        <inputEntry id="UnaryTests_2"><text>&gt; 2</text></inputEntry>
+        <outputEntry id="LiteralExpression_1"><text>2</text></outputEntry>
+      </rule>
+      <rule id="Rule_2">
+        <inputEntry id="UnaryTests_3"><text>"IT"</text></inputEntry>
+        <inputEntry id="UnaryTests_4"><text>&lt;= 2</text></inputEntry>
+        <outputEntry id="LiteralExpression_2"><text>1</text></outputEntry>
+      </rule>
+      <rule id="Rule_3">
+        <inputEntry id="UnaryTests_5"><text>"SALES"</text></inputEntry>
+        <inputEntry id="UnaryTests_6"><text>-</text></inputEntry>
+        <outputEntry id="LiteralExpression_3"><text>1</text></outputEntry>
+      </rule>
+      <rule id="Rule_4">
+        <inputEntry id="UnaryTests_7"><text>-</text></inputEntry>
+        <inputEntry id="UnaryTests_8"><text>-</text></inputEntry>
+        <outputEntry id="LiteralExpression_4"><text>1</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_Decision_1" dmnElementRef="access-level-decision">
+        <dc:Bounds height="80" width="180" x="160" y="80" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,0 +1,90 @@
+<div class="flex min-h-[calc(100vh-120px)] items-center justify-center p-2 sm:p-4">
+  <mat-card class="w-full max-w-2xl rounded-3xl border border-slate-200/80 bg-white/95 p-5 shadow-2xl sm:p-8">
+    <mat-card-header class="flex flex-col items-center mb-6">
+      <div class="bg-accent/10 p-4 rounded-full mb-4">
+        <mat-icon color="accent" class="scale-150">person_add</mat-icon>
+      </div>
+      <mat-card-title class="text-2xl font-bold text-slate-800">Create Account</mat-card-title>
+      <mat-card-subtitle class="text-slate-500">Join us today! Fill in your information below.</mat-card-subtitle>
+    </mat-card-header>
+    
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" placeholder="Choose a username">
+        @if (registerForm.get('username')?.hasError('required')) {
+          <mat-error>Username is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="Enter your email">
+        @if (registerForm.get('email')?.hasError('required')) {
+          <mat-error>Email is required</mat-error>
+        } @else if (registerForm.get('email')?.hasError('email')) {
+          <mat-error>Invalid email format</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Password</mat-label>
+        <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" placeholder="Create a password">
+        <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())" type="button">
+          <mat-icon>{{hidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        @if (registerForm.get('password')?.hasError('required')) {
+          <mat-error>Password is required</mat-error>
+        } @else if (registerForm.get('password')?.hasError('minlength')) {
+          <mat-error>Password must be at least 6 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="firstName" placeholder="Enter your first name">
+        @if (registerForm.get('firstName')?.hasError('required')) {
+          <mat-error>First name is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastName" placeholder="Enter your last name">
+        @if (registerForm.get('lastName')?.hasError('required')) {
+          <mat-error>Last name is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Date of Birth</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dob" placeholder="Choose a date">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        @if (registerForm.get('dob')?.hasError('required')) {
+          <mat-error>Date of birth is required</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="col-span-1 mt-4 flex flex-col gap-4 md:col-span-2">
+        <button
+          mat-flat-button
+          color="accent"
+          class="w-full rounded-xl !bg-emerald-600 py-4 text-base font-semibold !text-white shadow-md transition hover:!bg-emerald-700 disabled:!bg-slate-300 disabled:!text-slate-500"
+          [disabled]="registerForm.invalid || loading()"
+        >
+          @if (loading()) {
+            Creating Account...
+          } @else {
+            Register
+          }
+        </button>
+        
+        <div class="text-center text-slate-600">
+          Already have an account? 
+          <a routerLink="/login" class="text-accent font-semibold hover:underline">Sign in</a>
+        </div>
+      </div>
+    </form>
+  </mat-card>
+</div>

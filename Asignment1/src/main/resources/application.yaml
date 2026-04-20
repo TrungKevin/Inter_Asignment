@@ -1,0 +1,95 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/asignment
+    username: postgres
+    password: '160203'
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20 #Tối đa có 20 người có thể truy vấn DB cùng lúc
+      minimum-idle: 5
+      data-source-properties:
+        defaultRowFetchSize: 1000
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nguyentrungkien24sg@gmail.com
+    password: xhir fgaw rhps jipf
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          fetch_size: 1000
+
+  mvc:
+    async:
+      request-timeout: 900000
+
+  liquibase:
+    enabled: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Phải trùng issuer trong JWT (iss) — cùng host/port/realm với token Keycloak của bạn
+          issuer-uri: http://localhost:8180/realms/master
+idp:
+  url: http://localhost:8180
+  realm: master
+  client-id: asignment-client
+  client-secret: "wgq9Wq869w6Rdlw80bi5bSTfBfpv0Snc"
+  admin-realm: master
+  admin-client-id: asignment-client
+  admin-client-secret: "wgq9Wq869w6Rdlw80bi5bSTfBfpv0Snc"
+
+server:
+  port: 8080
+  tomcat:
+    connection-timeout: 900000
+
+app:
+  frontend-url: http://localhost:4200
+  report:
+    jdbc:
+      fetch-size: 1000
+    virtualizer:
+      max-pages: 100
+      block-size: 4096
+      min-grow-count: 200
+      swap-dir: ${java.io.tmpdir}/jasper-swap
+    concurrency:
+      pdf-xlsx: 2 #Chỉ cho phép tối đa 2 người xuất file PDF hoặc Excel cùng một lúc
+      acquire-timeout-seconds: 30 #Thời gian chờ tối đa để xuất file (30 giây)
+
+camunda:
+  bpm:
+    # Tạo tài khoản admin mặc định để đăng nhập vào Webapps (Cockpit/Tasklist)
+    admin-user:
+      id: admin
+      password: admin
+      first-name: Admin
+
+    # Tự động cập nhật/tạo bảng Camunda trong database hiện tại
+    database:
+      schema-update: true
+      # Nếu dùng chung DB với app, Camunda sẽ tự tạo các bảng tiền tố act_
+
+    # Bật Job Executor để xử lý các tác vụ bất đồng bộ (Async)
+    job-execution:
+      enabled: true
+      deployment-aware: true
+
+    # Tự động quét và triển khai các file BPMN trong folder resources
+    auto-deployment-enabled: true
+

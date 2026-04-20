@@ -1,0 +1,13 @@
+{
+  "routes": {
+    "/": {},
+    "/access-requests/create": {},
+    "/access-requests/mine": {},
+    "/admin": {},
+    "/camunda/tasks": {},
+    "/home": {},
+    "/login": {},
+    "/profile": {},
+    "/register": {}
+  }
+}

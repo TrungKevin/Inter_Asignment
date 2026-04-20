@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.19.0.final using JasperReports Library version 6.19.0-646c68931cebf1a58bc65c4359d1f0ca223c5e94  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="users_list" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="49b4b493-8894-4473-8c1c-83a078437e25">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EmptyDataAdapter"/>
+	<parameter name="reportTitle" class="java.lang.String"/>
+	<parameter name="exportDate" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="username" class="java.lang.String"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="firstName" class="java.lang.String"/>
+	<field name="lastName" class="java.lang.String"/>
+	<field name="dob" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement x="112" y="10" width="330" height="30" uuid="1ce62851-186e-424d-851f-fbe7113cca0d"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="20"/>
+				</textElement>
+				<text><![CDATA[DANH SÁCH NGƯỜI DÙNG.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="10" y="40" width="110" height="30" uuid="dd7e1296-ff6c-4c4b-ad0e-6b18f498ae39"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{reportTitle}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="450" y="40" width="110" height="30" uuid="6b60599f-83a5-4ac9-8f17-5f683a6fd3fe"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{exportDate}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="360" y="40" width="100" height="30" uuid="09a43bd0-86fa-47b6-92e8-dc1c5cc45e86"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[Ngày xuất:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="62" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="15" width="112" height="30" uuid="1eda55ed-c669-4964-a9b6-b0f4ea1404b7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[username]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="150" y="15" width="60" height="30" uuid="bb95e6aa-1712-4097-895b-a92839c8d0c2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[email]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="250" y="15" width="70" height="30" uuid="e6956284-a5f0-4650-8be9-160a31ca3989"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[firstName]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="360" y="16" width="80" height="30" uuid="2e43381a-96b4-4467-a032-e6add2bdc98d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[lastName]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="480" y="16" width="60" height="30" uuid="d3c03ab9-0fd9-4fb2-9dfb-34d73b0f3768"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[dob]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="47" width="111" height="30" uuid="6c2bc239-a1eb-495b-a500-af2bd4183ba4">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2f9d2532-45d8-4d61-8f3b-03239a3251b6"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{username}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="155" y="47" width="50" height="30" uuid="c642a518-d703-44cc-9572-cc227672a887">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a2158818-d09b-459c-97d7-129b756bd87d"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="250" y="47" width="70" height="30" uuid="d449dc91-1e74-43b7-b833-612cde7f4fef">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2ec763f9-e221-4ed3-855f-588167926d19"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{firstName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="360" y="47" width="80" height="30" uuid="b1fa2f18-8343-494a-88f8-e088e64b8f41">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="54cdec5b-39a1-4fd8-948e-8db157f30acd"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{lastName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="481" y="47" width="59" height="30" uuid="47374904-8323-4cbc-91e0-6ae07cce7cc3">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8b8ff3ba-3867-4a08-94c4-a3d574466950"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{dob}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

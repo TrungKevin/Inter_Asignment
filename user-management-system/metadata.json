@@ -1,0 +1,5 @@
+{
+  "name": "User Management System",
+  "description": "A comprehensive user management application with authentication, registration, and admin panel, integrated with Spring Boot and Keycloak.",
+  "requestFramePermissions": []
+}

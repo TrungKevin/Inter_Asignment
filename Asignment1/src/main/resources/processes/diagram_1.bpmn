@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0we8wcq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.45.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:process id="access-request" name="Access Request Provisioning" isExecutable="true" camunda:historyTimeToLive="30">
+    <bpmn:startEvent id="StartEvent_1" name="Request Submitted">
+      <bpmn:outgoing>Flow_start_to_check</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_start_to_check" sourceRef="StartEvent_1" targetRef="Activity_CheckApprovalLevel" />
+    <bpmn:businessRuleTask id="Activity_CheckApprovalLevel" name="Check Approval Level" camunda:resultVariable="approvalLevel" camunda:decisionRef="access-level-decision" camunda:mapDecisionResult="singleEntry">
+      <bpmn:incoming>Flow_start_to_check</bpmn:incoming>
+      <bpmn:outgoing>Flow_check_to_admin</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="Flow_check_to_admin" sourceRef="Activity_CheckApprovalLevel" targetRef="director_approve_task" />
+    <bpmn:userTask id="director_approve_task" name="Admin Approve" camunda:assignee="${admin}">
+      <bpmn:incoming>Flow_check_to_admin</bpmn:incoming>
+      <bpmn:incoming>Flow_user_clarified_to_admin</bpmn:incoming>
+      <bpmn:incoming>Flow_counter_accept</bpmn:incoming>
+      <bpmn:outgoing>Flow_admin_to_action_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_admin_to_action_gateway" sourceRef="director_approve_task" targetRef="Gateway_AdminAction" />
+    <bpmn:exclusiveGateway id="Gateway_AdminAction" name="Admin action">
+      <bpmn:incoming>Flow_admin_to_action_gateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_admin_approve</bpmn:outgoing>
+      <bpmn:outgoing>Flow_admin_reject</bpmn:outgoing>
+      <bpmn:outgoing>Flow_admin_need_info</bpmn:outgoing>
+      <bpmn:outgoing>Flow_admin_counter</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_admin_approve" name="APPROVE" sourceRef="Gateway_AdminAction" targetRef="Activity_ProvisionAccess">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == "APPROVE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_admin_reject" name="REJECT" sourceRef="Gateway_AdminAction" targetRef="Activity_HandleReject">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == "REJECT"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_admin_need_info" name="NEED_INFO" sourceRef="Gateway_AdminAction" targetRef="Activity_SendNeedInfoMail">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == "NEED_INFO"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_SendNeedInfoMail" name="Notify Need More Info" camunda:delegateExpression="${sendNeedInfoMailDelegate}">
+      <bpmn:incoming>Flow_admin_need_info</bpmn:incoming>
+      <bpmn:outgoing>Flow_need_info_to_user</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_need_info_to_user" sourceRef="Activity_SendNeedInfoMail" targetRef="Activity_UserClarify" />
+    <bpmn:sequenceFlow id="Flow_admin_counter" name="COUNTER_PROPOSAL" sourceRef="Gateway_AdminAction" targetRef="Activity_SendCounterProposalMail">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${action == "COUNTER_PROPOSAL"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_SendCounterProposalMail" name="Notify Counter Proposal" camunda:delegateExpression="${sendCounterProposalMailDelegate}">
+      <bpmn:incoming>Flow_admin_counter</bpmn:incoming>
+      <bpmn:outgoing>Flow_counter_mail_to_user</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_counter_mail_to_user" sourceRef="Activity_SendCounterProposalMail" targetRef="Activity_UserCounterResponse" />
+    <bpmn:userTask id="Activity_UserClarify" name="User Clarify Request" camunda:assignee="${requester}">
+      <bpmn:incoming>Flow_need_info_to_user</bpmn:incoming>
+      <bpmn:outgoing>Flow_user_clarified_to_admin</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_user_clarified_to_admin" name="CLARIFIED" sourceRef="Activity_UserClarify" targetRef="director_approve_task" />
+    <bpmn:userTask id="Activity_UserCounterResponse" name="User Confirm Counter Proposal" camunda:assignee="${requester}">
+      <bpmn:incoming>Flow_counter_mail_to_user</bpmn:incoming>
+      <bpmn:outgoing>Flow_user_counter_to_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_user_counter_to_gateway" sourceRef="Activity_UserCounterResponse" targetRef="Gateway_CounterDecision" />
+    <bpmn:exclusiveGateway id="Gateway_CounterDecision" name="User accepts counter?">
+      <bpmn:incoming>Flow_user_counter_to_gateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_counter_accept</bpmn:outgoing>
+      <bpmn:outgoing>Flow_counter_reject</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_counter_accept" name="ACCEPT_COUNTER" sourceRef="Gateway_CounterDecision" targetRef="director_approve_task">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${acceptCounter == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_counter_reject" name="DECLINE_COUNTER" sourceRef="Gateway_CounterDecision" targetRef="Activity_HandleReject">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${acceptCounter == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_ProvisionAccess" name="Provision Access" camunda:delegateExpression="${provisionAccessDelegate}">
+      <bpmn:incoming>Flow_admin_approve</bpmn:incoming>
+      <bpmn:outgoing>Flow_provision_to_mail</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_provision_to_mail" sourceRef="Activity_ProvisionAccess" targetRef="Activity_SendDecisionMail" />
+    <bpmn:serviceTask id="Activity_HandleReject" name="Handle Rejected Request" camunda:delegateExpression="${provisionAccessDelegate}">
+      <bpmn:incoming>Flow_admin_reject</bpmn:incoming>
+      <bpmn:incoming>Flow_counter_reject</bpmn:incoming>
+      <bpmn:outgoing>Flow_reject_to_mail</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_reject_to_mail" sourceRef="Activity_HandleReject" targetRef="Activity_SendDecisionMail" />
+    <bpmn:serviceTask id="Activity_SendDecisionMail" name="Send Notification Email" camunda:delegateExpression="${sendDecisionMailDelegate}">
+      <bpmn:incoming>Flow_provision_to_mail</bpmn:incoming>
+      <bpmn:incoming>Flow_reject_to_mail</bpmn:incoming>
+      <bpmn:outgoing>Flow_mail_to_end</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_mail_to_end" sourceRef="Activity_SendDecisionMail" targetRef="Event_1462v9g" />
+    <bpmn:endEvent id="Event_1462v9g" name="Request Finalized">
+      <bpmn:incoming>Flow_mail_to_end</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="access-request">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="120" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="113" y="418" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CheckApprovalLevel_di" bpmnElement="Activity_CheckApprovalLevel">
+        <dc:Bounds x="230" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_admin_di" bpmnElement="director_approve_task">
+        <dc:Bounds x="390" y="360" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AdminAction_di" bpmnElement="Gateway_AdminAction" isMarkerVisible="true">
+        <dc:Bounds x="545" y="375" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="538" y="435" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_SendNeedInfoMail_di" bpmnElement="Activity_SendNeedInfoMail">
+        <dc:Bounds x="610" y="470" width="140" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_UserClarify_di" bpmnElement="Activity_UserClarify">
+        <dc:Bounds x="615" y="560" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_UserCounterResponse_di" bpmnElement="Activity_UserCounterResponse">
+        <dc:Bounds x="630" y="110" width="160" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ProvisionAccess_di" bpmnElement="Activity_ProvisionAccess">
+        <dc:Bounds x="990" y="510" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_HandleReject_di" bpmnElement="Activity_HandleReject">
+        <dc:Bounds x="1050" y="80" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_SendDecisionMail_di" bpmnElement="Activity_SendDecisionMail">
+        <dc:Bounds x="1240" y="390" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1462v9g_di" bpmnElement="Event_1462v9g">
+        <dc:Bounds x="1592" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1566" y="368" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_SendCounterProposalMail_di" bpmnElement="Activity_SendCounterProposalMail">
+        <dc:Bounds x="300" y="135" width="160" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CounterDecision_di" bpmnElement="Gateway_CounterDecision" isMarkerVisible="true">
+        <dc:Bounds x="905" y="225" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="898" y="275" width="66" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_start_to_check_di" bpmnElement="Flow_start_to_check">
+        <di:waypoint x="156" y="400" />
+        <di:waypoint x="230" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_check_to_admin_di" bpmnElement="Flow_check_to_admin">
+        <di:waypoint x="330" y="400" />
+        <di:waypoint x="390" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_admin_to_action_gateway_di" bpmnElement="Flow_admin_to_action_gateway">
+        <di:waypoint x="500" y="400" />
+        <di:waypoint x="545" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_admin_approve_di" bpmnElement="Flow_admin_approve">
+        <di:waypoint x="580" y="385" />
+        <di:waypoint x="830" y="385" />
+        <di:waypoint x="830" y="550" />
+        <di:waypoint x="990" y="550" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="819" y="458" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_admin_reject_di" bpmnElement="Flow_admin_reject">
+        <di:waypoint x="580" y="385" />
+        <di:waypoint x="580" y="350" />
+        <di:waypoint x="1115" y="350" />
+        <di:waypoint x="1115" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="811" y="333" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_admin_need_info_di" bpmnElement="Flow_admin_need_info">
+        <di:waypoint x="595" y="400" />
+        <di:waypoint x="680" y="400" />
+        <di:waypoint x="680" y="470" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="608" y="413" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_need_info_to_user_di" bpmnElement="Flow_need_info_to_user">
+        <di:waypoint x="680" y="540" />
+        <di:waypoint x="680" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_admin_counter_di" bpmnElement="Flow_admin_counter">
+        <di:waypoint x="570" y="375" />
+        <di:waypoint x="570" y="298" />
+        <di:waypoint x="380" y="298" />
+        <di:waypoint x="380" y="205" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="429" y="273" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_counter_mail_to_user_di" bpmnElement="Flow_counter_mail_to_user">
+        <di:waypoint x="460" y="170" />
+        <di:waypoint x="545" y="170" />
+        <di:waypoint x="545" y="150" />
+        <di:waypoint x="630" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_user_clarified_to_admin_di" bpmnElement="Flow_user_clarified_to_admin">
+        <di:waypoint x="615" y="600" />
+        <di:waypoint x="445" y="600" />
+        <di:waypoint x="445" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="461" y="575" width="58" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_user_counter_to_gateway_di" bpmnElement="Flow_user_counter_to_gateway">
+        <di:waypoint x="790" y="150" />
+        <di:waypoint x="833" y="150" />
+        <di:waypoint x="833" y="240" />
+        <di:waypoint x="915" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_counter_accept_di" bpmnElement="Flow_counter_accept">
+        <di:waypoint x="915" y="260" />
+        <di:waypoint x="445" y="260" />
+        <di:waypoint x="445" y="360" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="586" y="243" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_counter_reject_di" bpmnElement="Flow_counter_reject">
+        <di:waypoint x="948" y="243" />
+        <di:waypoint x="948" y="120" />
+        <di:waypoint x="1050" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="924" y="173" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_provision_to_mail_di" bpmnElement="Flow_provision_to_mail">
+        <di:waypoint x="1110" y="520" />
+        <di:waypoint x="1110" y="430" />
+        <di:waypoint x="1240" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_reject_to_mail_di" bpmnElement="Flow_reject_to_mail">
+        <di:waypoint x="1180" y="120" />
+        <di:waypoint x="1300" y="120" />
+        <di:waypoint x="1300" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_mail_to_end_di" bpmnElement="Flow_mail_to_end">
+        <di:waypoint x="1380" y="430" />
+        <di:waypoint x="1456" y="430" />
+        <di:waypoint x="1456" y="350" />
+        <di:waypoint x="1592" y="350" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

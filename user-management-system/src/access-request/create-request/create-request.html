@@ -1,0 +1,49 @@
+<div class="mx-auto max-w-4xl">
+  <mat-card class="rounded-3xl border-none shadow-xl">
+    <div class="border-b border-slate-100 px-5 py-4 sm:px-6">
+      <h1 class="text-2xl font-bold text-slate-800">Tao yeu cau cap quyen</h1>
+      <p class="mt-1 text-sm text-slate-500">Chon phong ban, quyen va ly do de gui phieu.</p>
+    </div>
+
+    <form class="space-y-4 p-5 sm:p-6" [formGroup]="requestForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Phong ban</mat-label>
+        <mat-select formControlName="departmentCode">
+          @for (department of departmentOptions; track department) {
+            <mat-option [value]="department">{{ department }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Danh sach quyen</mat-label>
+        <mat-select formControlName="roles" multiple>
+          @for (role of roleOptions; track role) {
+            <mat-option [value]="role">{{ role }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Quyen da chon</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          @for (role of requestForm.getRawValue().roles; track role) {
+            <mat-chip>{{ role }}</mat-chip>
+          }
+        </div>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Ly do</mat-label>
+        <textarea matInput rows="4" formControlName="reason"></textarea>
+      </mat-form-field>
+
+      <div class="flex justify-end">
+        <button mat-flat-button color="primary" type="submit" [disabled]="loading()">
+          <mat-icon class="mr-1">send</mat-icon>
+          Gui yeu cau
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</div>
