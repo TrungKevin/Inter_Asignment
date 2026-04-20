@@ -399,6 +399,7 @@ public class ReportService {
         jasperPrint.setProperty("net.sf.jasperreports.default.pdf.embedded", "true");
     }
 
+    //1 report, Trả về mảng byte để bạn tự gửi HTTP response / lưu DB / đính kèm email.
     private byte[] exportExcel(JasperPrint jasperPrint) throws Exception {//xuất Excel từ 1 report duy nhất
         JRXlsxExporter exporter = new JRXlsxExporter();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -417,6 +418,7 @@ public class ReportService {
         return out.toByteArray();
     }
 
+    // ghi thẳng vào stream có sẵn (ví dụ HttpServletResponse.getOutputStream()), tránh tạo byte[] lớn trong RAM.
     private void exportExcel(JasperPrint jasperPrint, OutputStream outputStream) throws Exception {
         JRXlsxExporter exporter = new JRXlsxExporter();
         exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
@@ -432,6 +434,8 @@ public class ReportService {
         exporter.exportReport();
     }
 
+    //Dùng cho nhiều report
+    //Mỗi JasperPrint thành 1 sheet (setOnePagePerSheet(true)), có đặt tên sheet.
     private byte[] exportExcel(List<JasperPrint> jasperPrints, List<String> sheetNames) throws Exception {
         JRXlsxExporter exporter = new JRXlsxExporter();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
