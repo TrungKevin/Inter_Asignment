@@ -44,6 +44,10 @@ spring:
         jwt:
           # Phải trùng issuer trong JWT (iss) — cùng host/port/realm với token Keycloak của bạn
           issuer-uri: http://localhost:8180/realms/master
+  data:
+    redis:
+      host: localhost
+      port: 6379
 idp:
   url: http://localhost:8180
   realm: master
@@ -71,6 +75,22 @@ app:
     concurrency:
       pdf-xlsx: 2 #Chỉ cho phép tối đa 2 người xuất file PDF hoặc Excel cùng một lúc
       acquire-timeout-seconds: 30 #Thời gian chờ tối đa để xuất file (30 giây)
+    # File xuất từ job bất đồng bộ (POST /api/reports/jobs)
+    storage-dir: ${java.io.tmpdir}/report-exports
+    cache:
+      enabled: true
+      ttl-minutes: 10
+      key-prefix: report
+      policy: shared-admin
+      lock:
+        ttl-seconds: 180
+        wait-timeout-ms: 120000
+        poll-interval-ms: 500
+    cleanup:
+      enabled: true
+      retention-hours: 24
+      fixed-delay-ms: 1800000
+      initial-delay-ms: 60000
 
 camunda:
   bpm:

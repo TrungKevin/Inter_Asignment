@@ -14,4 +14,8 @@ public class WebSocketNotificationEvent {
     private String status;
     private LocalDateTime createdAt;
     private String sender;
+    /** Bất đồng bộ xuất báo cáo (STOMP) — tùy chọn. */
+    private String jobId;
+    private Integer percent;
+    private String downloadUrl;
 }

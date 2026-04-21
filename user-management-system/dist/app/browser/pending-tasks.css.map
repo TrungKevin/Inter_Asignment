@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/access-request/pending-task/pending-tasks.css"],
-  "sourcesContent": ["table th,\r\ntable td {\r\n  white-space: nowrap;\r\n}\r\n"],
-  "mappings": ";AAAA,MAAA;;AAEE,eAAA;AACF;",
-  "names": []
-}

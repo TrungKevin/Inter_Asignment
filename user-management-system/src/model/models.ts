@@ -109,3 +109,29 @@ export interface AccessRequestTaskCompletePayload {
   acceptCounter?: boolean;
   comment?: string;
 }
+
+/** Khi backend có export bất đồng bộ (POST /api/reports/jobs) — dùng cho FE sau này. */
+export type ExportJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+
+export interface ExportJobCreateResponse {
+  jobId: string;
+  status?: ExportJobStatus;
+}
+
+export interface ExportJobStatusResponse {
+  jobId: string;
+  status: ExportJobStatus;
+  format?: 'pdf' | 'xlsx';
+  percent?: number;
+  downloadPath?: string;
+  errorMessage?: string;
+}
+
+/** Payload WebSocket/STOMP khi backend gửi tiến độ export (destination do backend quy định). */
+export interface ReportExportProgressEvent {
+  jobId: string;
+  percent: number;
+  status: ExportJobStatus;
+  downloadUrl?: string;
+  message?: string;
+}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/admin/admin-panel.css"],
-  "sourcesContent": [":host {\n  display: block;\n}\n"],
-  "mappings": ";AAAA;AACE,WAAA;AACF;",
-  "names": []
-}

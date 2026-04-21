@@ -4,6 +4,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { jwtDecode } from 'jwt-decode';
 import { Subject } from 'rxjs';
+import { ReportExportProgressEvent } from '../model/models';
 
 type WebSocketNotificationEvent = {
   type?: string;
@@ -24,6 +25,8 @@ export class WebSocketNotificationService {
   /** Bắn khi có sự kiện workflow làm thay đổi hàng chờ Camunda — trang task có thể subscribe để reload. */
   private readonly camundaTasksRefresh = new Subject<void>();
   readonly camundaTasksRefresh$ = this.camundaTasksRefresh.asObservable();
+  private readonly reportExportEvents = new Subject<ReportExportProgressEvent>();
+  readonly reportExportEvents$ = this.reportExportEvents.asObservable();
 
   private readonly apiUrl = 'http://localhost:8080';
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -77,6 +80,7 @@ export class WebSocketNotificationService {
     client.onConnect = () => {
       this.reconnectAttempt = 0;
       client.subscribe('/user/queue/notifications', (frame) => this.handleStompFrame(frame));
+      client.subscribe('/user/queue/report-jobs', (frame) => this.handleReportExportFrame(frame));
       if (this.isAdminToken(token)) {
         client.subscribe('/topic/admin-notifications', (frame) => this.handleStompFrame(frame));
       }
@@ -154,6 +158,33 @@ export class WebSocketNotificationService {
       });
     } catch {
       // Ignore malformed payloads and continue consuming stream.
+    }
+  }
+
+  private handleReportExportFrame(frame: IMessage) {
+    try {
+      const payload = JSON.parse(frame.body) as {
+        type?: string;
+        status?: string;
+        message?: string;
+        jobId?: string;
+        percent?: number;
+        downloadUrl?: string;
+      };
+      if (!payload.jobId) {
+        return;
+      }
+      const status = (payload.status as ReportExportProgressEvent['status']) ?? 'PROCESSING';
+      const event: ReportExportProgressEvent = {
+        jobId: payload.jobId,
+        percent: payload.percent ?? 0,
+        status,
+        downloadUrl: payload.downloadUrl,
+        message: payload.message
+      };
+      this.zone.run(() => this.reportExportEvents.next(event));
+    } catch {
+      // Ignore malformed payload and continue.
     }
   }
 

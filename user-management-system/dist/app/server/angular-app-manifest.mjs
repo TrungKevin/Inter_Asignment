@@ -1,7 +1,7 @@
 
 export default {
   bootstrap: () => import('./main.server.mjs').then(m => m.default),
-  inlineCriticalCss: false,
+  inlineCriticalCss: true,
   baseHref: '/',
   locale: undefined,
   routes: [
@@ -13,105 +13,103 @@ export default {
   {
     "renderMode": 2,
     "preload": [
-      "chunk-RE3MZMMJ.js",
-      "chunk-4AY747T2.js",
-      "chunk-BE6M4QSQ.js",
-      "chunk-QW2GHLSC.js",
-      "chunk-LK7BO2ET.js"
+      "chunk-TO3WONE3.js",
+      "chunk-WV53U6AG.js",
+      "chunk-3U6PPPS4.js",
+      "chunk-JIDTVWC6.js",
+      "chunk-6VO2IPTV.js"
     ],
     "route": "/login"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-4LJLNTXS.js",
-      "chunk-2W46CUNI.js",
-      "chunk-ZXGZLTPF.js",
-      "chunk-WTLH6CNG.js",
-      "chunk-4AY747T2.js",
-      "chunk-BE6M4QSQ.js",
-      "chunk-QW2GHLSC.js",
-      "chunk-LK7BO2ET.js"
+      "chunk-PYQV5QXI.js",
+      "chunk-BNFRCA2H.js",
+      "chunk-5OFCD43Q.js",
+      "chunk-FWPGBPCM.js",
+      "chunk-WV53U6AG.js",
+      "chunk-3U6PPPS4.js",
+      "chunk-JIDTVWC6.js",
+      "chunk-6VO2IPTV.js"
     ],
     "route": "/register"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-NFLEYFUG.js",
-      "chunk-LK7BO2ET.js"
+      "chunk-HTVYYLHJ.js",
+      "chunk-6VO2IPTV.js"
     ],
     "route": "/home"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-KQBS3XUY.js",
-      "chunk-J5UUDBA6.js",
-      "chunk-BE6M4QSQ.js",
-      "chunk-QW2GHLSC.js",
-      "chunk-LK7BO2ET.js"
+      "chunk-QZWZE5HL.js",
+      "chunk-767TPATM.js",
+      "chunk-3U6PPPS4.js",
+      "chunk-JIDTVWC6.js",
+      "chunk-6VO2IPTV.js"
     ],
     "route": "/profile"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-H5BKDLZH.js",
-      "chunk-2W46CUNI.js",
-      "chunk-SXDFAGXD.js",
-      "chunk-R2BTQPMO.js",
-      "chunk-WTLH6CNG.js",
-      "chunk-HFODSLVQ.js",
-      "chunk-QW2GHLSC.js",
-      "chunk-LK7BO2ET.js"
+      "chunk-PK44P7QF.js",
+      "chunk-BNFRCA2H.js",
+      "chunk-JFOFTNX6.js",
+      "chunk-PM7K3S2Z.js",
+      "chunk-FWPGBPCM.js",
+      "chunk-3TZ7CDQI.js",
+      "chunk-JIDTVWC6.js",
+      "chunk-6VO2IPTV.js"
     ],
     "route": "/admin"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-S3JNVKZH.js",
-      "chunk-H52HRFOU.js",
-      "chunk-ZXGZLTPF.js",
-      "chunk-J5UUDBA6.js",
-      "chunk-4AY747T2.js",
-      "chunk-BE6M4QSQ.js",
-      "chunk-HFODSLVQ.js",
-      "chunk-QW2GHLSC.js",
-      "chunk-LK7BO2ET.js"
+      "chunk-RAFLYHGM.js",
+      "chunk-3FTKME33.js",
+      "chunk-5OFCD43Q.js",
+      "chunk-767TPATM.js",
+      "chunk-WV53U6AG.js",
+      "chunk-3U6PPPS4.js",
+      "chunk-3TZ7CDQI.js",
+      "chunk-JIDTVWC6.js",
+      "chunk-6VO2IPTV.js"
     ],
     "route": "/access-requests/create"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-JJV654IJ.js",
-      "chunk-3CV6T2DV.js",
-      "chunk-SXDFAGXD.js",
-      "chunk-R2BTQPMO.js",
-      "chunk-WTLH6CNG.js",
-      "chunk-4AY747T2.js",
-      "chunk-BE6M4QSQ.js",
-      "chunk-HFODSLVQ.js",
-      "chunk-QW2GHLSC.js",
-      "chunk-LK7BO2ET.js"
+      "chunk-WEFVP6TC.js",
+      "chunk-JFOFTNX6.js",
+      "chunk-PM7K3S2Z.js",
+      "chunk-FWPGBPCM.js",
+      "chunk-WV53U6AG.js",
+      "chunk-3U6PPPS4.js",
+      "chunk-3TZ7CDQI.js",
+      "chunk-JIDTVWC6.js",
+      "chunk-6VO2IPTV.js"
     ],
     "route": "/access-requests/mine"
   },
   {
     "renderMode": 2,
     "preload": [
-      "chunk-CGSRPGCY.js",
-      "chunk-H52HRFOU.js",
-      "chunk-ZXGZLTPF.js",
-      "chunk-3CV6T2DV.js",
-      "chunk-R2BTQPMO.js",
-      "chunk-4AY747T2.js",
-      "chunk-BE6M4QSQ.js",
-      "chunk-HFODSLVQ.js",
-      "chunk-QW2GHLSC.js",
-      "chunk-LK7BO2ET.js"
+      "chunk-GN45J7C6.js",
+      "chunk-3FTKME33.js",
+      "chunk-5OFCD43Q.js",
+      "chunk-PM7K3S2Z.js",
+      "chunk-WV53U6AG.js",
+      "chunk-3U6PPPS4.js",
+      "chunk-3TZ7CDQI.js",
+      "chunk-JIDTVWC6.js",
+      "chunk-6VO2IPTV.js"
     ],
     "route": "/camunda/tasks"
   },
@@ -123,15 +121,16 @@ export default {
 ],
   entryPointToBrowserMapping: undefined,
   assets: {
-    'index.csr.html': {size: 841, hash: '962021dd0892d6457b1155d1c5e044077c82021bdf66a7378e03b47685cba283', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
-    'index.server.html': {size: 1381, hash: 'ccdccae43f8f3455ff737d653205717b8ae8aa26d643d74e13f6511e9bfd4b02', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
+    'index.csr.html': {size: 88758, hash: '9a6acaad31b1b3035f32cec98008ef37344733b1cfe36e05e66db6356eecca0e', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
+    'index.server.html': {size: 1143, hash: '7b5afe7a26cb070c84ada6c2bd3ef78f16b6b33f181c42fc9cca4771d1b8f403', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
     'access-requests/mine/index.html': {size: 240, hash: 'db096474d521163c4f5fb7d700305222bcea1012b38583442ad232da75e59192', text: () => import('./assets-chunks/access-requests_mine_index_html.mjs').then(m => m.default)},
     'access-requests/create/index.html': {size: 240, hash: 'db096474d521163c4f5fb7d700305222bcea1012b38583442ad232da75e59192', text: () => import('./assets-chunks/access-requests_create_index_html.mjs').then(m => m.default)},
-    'login/index.html': {size: 88405, hash: 'dee304dba8ad3f71fc128657ef6665e3df91a7f883f1e790ba42ffac3b99a5b8', text: () => import('./assets-chunks/login_index_html.mjs').then(m => m.default)},
     'admin/index.html': {size: 240, hash: 'db096474d521163c4f5fb7d700305222bcea1012b38583442ad232da75e59192', text: () => import('./assets-chunks/admin_index_html.mjs').then(m => m.default)},
     'home/index.html': {size: 240, hash: 'db096474d521163c4f5fb7d700305222bcea1012b38583442ad232da75e59192', text: () => import('./assets-chunks/home_index_html.mjs').then(m => m.default)},
     'camunda/tasks/index.html': {size: 240, hash: 'db096474d521163c4f5fb7d700305222bcea1012b38583442ad232da75e59192', text: () => import('./assets-chunks/camunda_tasks_index_html.mjs').then(m => m.default)},
-    'register/index.html': {size: 94390, hash: 'e9207078b1fc0dde010ddff1502593a8a1e888b5cfdaa513e461a2bc1dc237d1', text: () => import('./assets-chunks/register_index_html.mjs').then(m => m.default)},
-    'profile/index.html': {size: 240, hash: 'db096474d521163c4f5fb7d700305222bcea1012b38583442ad232da75e59192', text: () => import('./assets-chunks/profile_index_html.mjs').then(m => m.default)}
+    'profile/index.html': {size: 240, hash: 'db096474d521163c4f5fb7d700305222bcea1012b38583442ad232da75e59192', text: () => import('./assets-chunks/profile_index_html.mjs').then(m => m.default)},
+    'login/index.html': {size: 189114, hash: '8693fffcf4fa0b75d0a9fb0e43e4a48867c21714c13948fb653ac2ad2e6fa6be', text: () => import('./assets-chunks/login_index_html.mjs').then(m => m.default)},
+    'register/index.html': {size: 192374, hash: '7bc6875a68da6dff01c786f02b71abf721a974666ed223a706ced12fc31df2bf', text: () => import('./assets-chunks/register_index_html.mjs').then(m => m.default)},
+    'styles-2VXTPZO3.css': {size: 164216, hash: '8L+xXWheKKA', text: () => import('./assets-chunks/styles-2VXTPZO3_css.mjs').then(m => m.default)}
   },
 };

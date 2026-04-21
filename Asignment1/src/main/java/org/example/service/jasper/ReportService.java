@@ -35,6 +35,7 @@ import org.example.entity.LoginLog;
 import org.example.exception.AppException;
 import org.example.exception.ErrorCode;
 import org.example.repository.LoginLogRepository;
+import org.example.service.jasper.strategy.ReportExportStrategyResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +74,7 @@ public class ReportService {
     private final RequestHistoryRepository requestHistoryRepository;
     private final AccessRequestLineRepository accessRequestLineRepository;
     private final DataSource dataSource;
+    private final ReportExportStrategyResolver reportExportStrategyResolver;
 
     private static final List<String> DEFAULT_COLUMNS = List.of(
             "username",
@@ -218,6 +220,28 @@ public class ReportService {
         });
     }
 
+    /**
+     * Kiểm tra format + bảng + cột trước khi tạo job async (không render Jasper).
+     */
+    public void validateCombinedExportParameters(
+            String format,
+            List<String> tables,
+            List<String> userColumns,
+            List<String> loginLogColumns
+    ) {
+        String normalizedFormat = format == null ? "" : format.toLowerCase(Locale.ROOT);
+        if (!isSupportedJasperFormat(normalizedFormat)) {
+            throw new IllegalArgumentException("Unsupported format: " + format);
+        }
+        List<String> normalizedTables = normalizeTables(tables);
+        if (normalizedTables.contains("users")) {
+            normalizeColumns(userColumns);
+        }
+        if (normalizedTables.contains("loginlogs")) {
+            normalizeLoginLogColumns(loginLogColumns);
+        }
+    }
+
     public byte[] exportCombinedAdminReport(//hàm “combined report” cho admin: có thể gộp nhiều bảng vào 1 file
             String format,
             List<String> tables,
@@ -254,17 +278,8 @@ public class ReportService {
                 throw new IllegalArgumentException("At least one table must be selected");
             }
 
-            if ("pdf".equalsIgnoreCase(format)) {//Áp Unicode để tiếng Việt không lỗi font
-                jasperPrints.forEach(this::applyPdfUnicodeProperties);// Gọi exportPdf(jasperPrints) để merge nhiều print vào 1 PDF
-                return exportPdf(jasperPrints);
-            }
-
-            if ("xlsx".equalsIgnoreCase(format)) {
-                return exportExcel(jasperPrints, sheetNames);
-            }
+            return reportExportStrategyResolver.resolve(format).export(jasperPrints, sheetNames);
         }
-
-        throw new IllegalArgumentException("Unsupported format: " + format);
     }
 
     //dựng layout động + gắn dữ liệu, rồi trả về JasperPrint/ Fill data
@@ -456,7 +471,8 @@ public class ReportService {
         return out.toByteArray();
     }
 
-    //giúp cho admin có thể exportPdf([print1, print2]) -> ra 1 PDF gồm 2 phần.
+    //Nhận nhiều JasperPrint.
+    //Jasper sẽ ghép (merge) các report thành 1 file PDF duy nhất theo thứ tự list
     private byte[] exportPdf(List<JasperPrint> jasperPrints) throws Exception {
         JRPdfExporter exporter = new JRPdfExporter();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -467,6 +483,8 @@ public class ReportService {
         return out.toByteArray();
     }
 
+    //Nhận 1 JasperPrint.
+    //Ghi trực tiếp ra OutputStream có sẵn
     private void exportPdf(JasperPrint jasperPrint, OutputStream outputStream) throws Exception {
         JRPdfExporter exporter = new JRPdfExporter();
         exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
@@ -498,12 +516,16 @@ public class ReportService {
         return new ArrayList<>(cols);
     }
 
+    // map parameters truyền vào Jasper-Khi report lớn,
+    // Jasper không giữ toàn bộ trang trong RAM,
+    // mà “swap” bớt ra disk/virtual storage.
     private Map<String, Object> buildVirtualizedReportParameters(JRVirtualizer virtualizer) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
         return parameters;
     }
 
+    //admin chọn cột
     private String buildUsersSqlQuery(List<String> normalizedColumns) {
         List<String> projections = new ArrayList<>();
         for (String column : normalizedColumns) {
@@ -519,6 +541,7 @@ public class ReportService {
                 "ORDER BY u.username";
     }
 
+
     private static Map<String, String> buildUserCsvColumnSql() {
         Map<String, String> columns = new HashMap<>();
         columns.put("username", "u.username");
@@ -529,10 +552,12 @@ public class ReportService {
         return Map.copyOf(columns);
     }
 
+    //định dạng
     private boolean isSupportedJasperFormat(String format) {
         return "pdf".equals(format) || "xlsx".equals(format);
     }
 
+    //Tránh nhiều request export nặng chạy cùng lúc làm
     private <T> T withConcurrencyLimit(String format, CheckedSupplier<T> supplier) throws IOException {
         boolean acquired;
         try {
@@ -552,7 +577,9 @@ public class ReportService {
         }
     }
 
+    //theo dõi hiệu năng export chậm nhanh thế nào
     private void logExportSummary(String format, int columnCount, long rows, long startedNano) {
+        //Lấy System.nanoTime() đổi sang milliseconds để biết export mất bao lâu
         long durationMs = (System.nanoTime() - startedNano) / 1_000_000L;
         double rowsPerSecond = rows > 0 && durationMs > 0
                 ? (rows * 1000.0d) / durationMs
@@ -585,8 +612,9 @@ public class ReportService {
         T get() throws IOException;
     }
 
+    //giúp tránh hết bộ nhớ.
     private ReportVirtualizerContext createVirtualizerContext() {
-        File swapDirectory = new File(virtualizerSwapDir);
+        File swapDirectory = new File(virtualizerSwapDir);//nơi Jasper sẽ ghi file tạm.
         if (!swapDirectory.exists()) {
             swapDirectory.mkdirs();
         }
