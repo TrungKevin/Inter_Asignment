@@ -22,7 +22,7 @@ public class AccessRequestController {
     private final AccessRequestService accessRequestService;
     private final AccessRequestQueryService accessRequestQueryService;
 
-    @PostMapping({"", "/submit"})
+    @PostMapping({"", "/submit"})// dấu , là để khi người dùng gửi request với đường dẫn /submit thì sẽ gọi đến hàm này
     public ResponseEntity<AccessRequest> submitRequest(@RequestBody AccessRequestDTO dto) {
         // Gọi service để vừa lưu DB vừa Start Camunda
         AccessRequest result = accessRequestService.createRequestAndStartProcess(dto);

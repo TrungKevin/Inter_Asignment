@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component("sendNeedInfoMailDelegate")
 @RequiredArgsConstructor
+//•	Gửi mail Need Info
 public class SendNeedInfoMailDelegate implements JavaDelegate {
 
   private final AccessRequestNotificationService notificationService;

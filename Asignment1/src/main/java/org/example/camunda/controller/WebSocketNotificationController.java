@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController
 @RequestMapping("/api/notifications/webSocket")
 @RequiredArgsConstructor
+//SSE 
 public class WebSocketNotificationController {
 
     private final WebSocketSseNotificationService webSocketSseNotificationService;

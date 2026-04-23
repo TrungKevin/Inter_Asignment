@@ -7,7 +7,7 @@ import org.example.camunda.service.AccessRequestNotificationService;
 import org.springframework.stereotype.Component;
 
 @Component("sendDecisionMailDelegate")
-@RequiredArgsConstructor
+@RequiredArgsConstructor//hàm này để inject service vào delegate
 public class SendDecisionMailDelegate implements JavaDelegate {
 
   private final AccessRequestNotificationService notificationService;
