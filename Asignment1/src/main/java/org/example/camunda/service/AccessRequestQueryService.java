@@ -36,6 +36,7 @@ public class AccessRequestQueryService {// service để lấy danh sách yêu c
                 .toList();
     }
 
+    //hàm này để lấy chi tiết yêu cầu của user
     public AccessRequestDetailResponse getRequestDetail(Long requestId, Authentication authentication) {
         AccessRequest request = accessRequestRepository.findById(requestId)
                 .orElseThrow(() -> new AppException(ErrorCode.REQUEST_NOT_FOUND));
@@ -58,13 +59,13 @@ public class AccessRequestQueryService {// service để lấy danh sách yêu c
                 .map(this::toHistoryItem)
                 .toList();
 
-        List<AccessRequestLineItemResponse> lines = accessRequestLineRepository//lấy danh sách quyền của yêu cầu
+        List<AccessRequestLineItemResponse> lines = accessRequestLineRepository//lấy danh sách quyền của yêu cầu là list các quyền của yêu cầu
                 .findByRequestIdOrderByLineIdAsc(requestId)
                 .stream()
                 .map(this::toLineItem)
                 .toList();
 
-        return AccessRequestDetailResponse.builder()
+        return AccessRequestDetailResponse.builder()//tạo object DTO chi tiết yêu cầu
                 .requestId(request.getRequestId())
                 .businessKey(request.getBusinessKey())
                 .processInstanceId(request.getProcessInstanceId())

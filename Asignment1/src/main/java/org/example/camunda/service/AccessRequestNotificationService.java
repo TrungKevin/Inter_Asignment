@@ -17,6 +17,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+// Service để gửi email thông báo cho user
 public class AccessRequestNotificationService {
   private final AccessRequestRepository accessRequestRepository;
   private final JavaMailSender mailSender;
@@ -25,7 +26,7 @@ public class AccessRequestNotificationService {
     AccessRequest request = accessRequestRepository.findById(requestId)
         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy requestId: " + requestId));
 
-    String recipient = resolveRecipient(request);
+    String recipient = resolveRecipient(request);//lấy email của user từ request
     String outcome = approved ? "APPROVED" : "REJECTED";
     String message = buildMessage(request, approved, comment);
 
@@ -47,8 +48,8 @@ public class AccessRequestNotificationService {
     AccessRequest request = accessRequestRepository.findById(requestId)
         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy requestId: " + requestId));
 
-    String recipient = resolveRecipient(request);
-    String message = buildNeedInfoMessage(request, comment);
+    String recipient = resolveRecipient(request);//lấy email của user từ request
+    String message = buildNeedInfoMessage(request, comment);//tạo message cần bổ sung thông tin
 
     try {
       MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -67,13 +68,13 @@ public class AccessRequestNotificationService {
     AccessRequest request = accessRequestRepository.findById(requestId)
         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy requestId: " + requestId));
 
-    String recipient = resolveRecipient(request);
-    String message = buildCounterProposalMessage(request, comment);
+    String recipient = resolveRecipient(request);//lấy email của user từ request
+    String message = buildCounterProposalMessage(request, comment);//tạo message đề xuất điều chỉnh quyền
 
     try {
-      MimeMessage mimeMessage = mailSender.createMimeMessage();
-      MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-      helper.setTo(recipient);
+      MimeMessage mimeMessage = mailSender.createMimeMessage();//tạo message email
+      MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");//tạo helper để gửi email
+      helper.setTo(recipient);//gửi email đến user
       helper.setSubject("Admin gửi đề xuất điều chỉnh quyền");
       helper.setText(message, false);
       mailSender.send(mimeMessage);
@@ -83,6 +84,7 @@ public class AccessRequestNotificationService {
     }
   }
 
+  //hàm này để lấy email của user từ request
   private String resolveRecipient(AccessRequest request) {
     Map<String, Object> payload = request.getPayload();
     if (payload != null) {
@@ -94,6 +96,7 @@ public class AccessRequestNotificationService {
     return request.getRequesterUsername();
   }
 
+  //hàm này để tạo message cho email gửi đến user
   private String buildMessage(AccessRequest request, boolean approved, String comment) {
     String base = approved
         ? "Yeu cau cap quyen da duoc phe duyet."

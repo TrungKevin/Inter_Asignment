@@ -11,6 +11,10 @@ public class WebSocketStompNotificationService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
+    public WebSocketStompNotificationService(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+    }
+
     public void pushToUser(String username, WebSocketNotificationEvent payload) {
         if (username == null || username.isBlank()) {
             return;
