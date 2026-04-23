@@ -20,6 +20,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+//đã có job rồi thì đi render, ghi file, cập nhật kết quả.
 public class ExportJobWorker {//Chạy bất đồng bộ (@Async): đọc job, gọi logic Jasper đã có
 
     private final ExportJobRepository exportJobRepository;
@@ -47,12 +48,13 @@ public class ExportJobWorker {//Chạy bất đồng bộ (@Async): đọc job, 
             // Đọc params từ job
             CombinedExportParamsJson params = objectMapper.readValue(job.getParamsJson(), CombinedExportParamsJson.class);
             byte[] bytes = reportOrchestrationService.fetchAndRenderCombinedReport(job, params);
+            //gọi service để ghi file vào storage dir để tải.
             ReportOrchestrationService.DeliveryResult deliveryResult = reportOrchestrationService.deliverToStorage(
                     job,
                     bytes,
                     storageDir
             );
-            String fileName = deliveryResult.getFileName();
+            String fileName = deliveryResult.getFileName();//lấy tên file từ delivery result
 
             job.setStatus(ExportJobStatus.COMPLETED);
             job.setStoredFileName(fileName);

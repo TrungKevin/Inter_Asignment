@@ -20,48 +20,12 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reports")
+//dùng cho xuất report trực tiếp (sync): gọi API là server render
+// tải report ngay trong 1 request
 public class ReportController {
 
     @Autowired
     private ReportService reportService;
-
-    // @GetMapping("/users.{format}")
-    // public ResponseEntity<byte[]> getReport(@PathVariable String format) {
-    //     try {
-    //         // 1. Chuẩn bị dữ liệu mẫu (Sau này bạn sẽ gọi Repository tại đây)
-    //         List<UserReportRow> data = Arrays.asList(
-    //                 new UserReportRow("kiennt", "kien@gmail.com", "Kien", "Nguyen", "2000-01-01"),
-    //                 new UserReportRow("admin", "admin@foodrescue.com", "Admin", "System", "1995-05-10")
-    //         );
-
-    //         byte[] reportContent;
-    //         String contentType;
-    //         String fileName = "users_list." + format;
-
-    //         // 2. Điều hướng theo format người dùng yêu cầu (.pdf hoặc .xlsx)
-    //         if ("pdf".equalsIgnoreCase(format)) {
-    //             reportContent = reportService.exportPdfFromList(data);
-    //             contentType = "application/pdf";
-    //         } else if ("xlsx".equalsIgnoreCase(format)) {
-    //             // Giả sử bạn đã viết thêm hàm exportXlsx trong Service
-    //             reportContent = reportService.exportXlsxFromList(data);
-    //             contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    //         } else {
-    //             return ResponseEntity.badRequest().build();
-    //         }
-
-    //         // 3. Trả về Response kèm Header để trình duyệt hiểu đây là file tải về
-    //         return ResponseEntity.ok()
-    //                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-    //                 .contentType(MediaType.parseMediaType(contentType))
-    //                 .body(reportContent);
-
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    //     }
-    // }
-
 
     // ADMIN PAGE: chỉ admin mới được xuất toàn bộ danh sách user
     @GetMapping("/users-db/all/{format}")
@@ -87,7 +51,7 @@ public class ReportController {
     ) {
         String fileExtension = format.toLowerCase();
         String contentType;
-        if ("pdf".equals(fileExtension)) {
+        if ("pdf".equals(fileExtension)) {//kiểm tra extension file để xác định content type
             contentType = "application/pdf";
         } else if ("xlsx".equals(fileExtension)) {
             contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -95,7 +59,7 @@ public class ReportController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<String> selectedColumns = parseColumns(columns);
+        List<String> selectedColumns = parseColumns(columns);//parse query param columns thành List<String>
         String fileName = "Large_Users_Report_" + System.currentTimeMillis() + "." + fileExtension;
         StreamingResponseBody stream =
                 outputStream -> reportService.streamDynamicAllUsers(fileExtension, selectedColumns, outputStream);
@@ -133,7 +97,7 @@ public class ReportController {
     }
 
     @GetMapping("/access-requests/{requestId}/pdf")
-    @PreAuthorize("hasAnyRole('admin', 'auditor')")//
+    @PreAuthorize("hasAnyRole('admin', 'auditor')")
     public ResponseEntity<byte[]> getAccessRequestReport(@PathVariable Long requestId) throws Exception {
         byte[] pdfContents = reportService.exportAccessRequestPdf(requestId);
 
@@ -150,6 +114,7 @@ public class ReportController {
                 .body(pdfContents);
     }
 
+    //hàm này dùng để xây dựng response cho report all users
     private ResponseEntity<byte[]> buildResponse(String format, List<String> selectedColumns) throws Exception {
         byte[] reportContent;
         String contentType;

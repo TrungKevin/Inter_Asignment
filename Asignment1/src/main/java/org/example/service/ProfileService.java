@@ -71,6 +71,14 @@ public class ProfileService {
                 .build();
     }
 
+    @Transactional
+    @PreAuthorize("hasRole('admin')")
+    public void deleteUserById(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.REQUEST_NOT_FOUND));
+        userRepository.delete(user);
+    }
+
     private ProfileResponse toProfileResponse(Profile profile) {
         return ProfileResponse.builder()
                 .profileId(profile.getProfileId())

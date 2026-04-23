@@ -31,6 +31,10 @@ interface LoginExportColumnOption {
   label: string;
 }
 
+type PreviewExcelRow = Record<string, unknown> & {
+  __placeholder?: boolean;
+};
+
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
@@ -76,7 +80,7 @@ export class AdminPanel implements OnInit {
   previewPdfUrl = signal<SafeResourceUrl | null>(null);
   previewPdfObjectUrl = signal<string | null>(null);
   previewExcelColumns = signal<string[]>([]);
-  previewExcelRows = signal<Record<string, unknown>[]>([]);
+  previewExcelRows = signal<PreviewExcelRow[]>([]);
   previewExcelPage = signal(1);
   readonly previewExcelPageSize = 10;
   loginLogsPage = signal(1);
@@ -197,6 +201,32 @@ export class AdminPanel implements OnInit {
     const currentPage = this.getUserDisplayPageOneBased();
     const nextGroupFirstPage = Math.floor((currentPage - 1) / 10) * 10 + 11;
     this.goToUserPageOneBased(nextGroupFirstPage);
+  }
+
+  onDeleteUser(profile: ProfileResponse) {
+    const confirmed = window.confirm(`Ban co chac chan muon xoa user "${profile.username}"?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.authService.deleteProfile(profile.userId).subscribe({
+      next: () => {
+        this.snackBar.open(`Da xoa user "${profile.username}" thanh cong.`, 'Dong', { duration: 3000 });
+        const shouldGoPreviousPage = this.profiles().length === 1 && this.userPageIndex() > 0;
+        if (shouldGoPreviousPage) {
+          this.userPageIndex.update((prev) => prev - 1);
+        }
+        this.loadProfiles();
+      },
+      error: (err: unknown) => {
+        const fallbackMessage = 'Khong the xoa user luc nay. Vui long thu lai sau.';
+        const message =
+          typeof err === 'object' && err !== null && 'error' in err
+            ? (err as { error?: { message?: string } }).error?.message || fallbackMessage
+            : fallbackMessage;
+        this.snackBar.open(message, 'Dong', { duration: 5000 });
+      }
+    });
   }
 
   getUserNextPageBlockLabel(): string {
@@ -626,10 +656,20 @@ export class AdminPanel implements OnInit {
     return Math.max(1, Math.ceil(total / this.previewExcelPageSize));
   }
 
-  getPreviewExcelPageRows(): Record<string, unknown>[] {
+  getPreviewExcelPageRows(): PreviewExcelRow[] {
     const page = this.previewExcelPage();
     const start = (page - 1) * this.previewExcelPageSize;
     return this.previewExcelRows().slice(start, start + this.previewExcelPageSize);
+  }
+
+  getPreviewExcelDisplayRows(): PreviewExcelRow[] {
+    const rows = this.getPreviewExcelPageRows();
+    const missing = this.previewExcelPageSize - rows.length;
+    if (missing <= 0) {
+      return rows;
+    }
+    const placeholders: PreviewExcelRow[] = Array.from({ length: missing }, () => ({ __placeholder: true }));
+    return [...rows, ...placeholders];
   }
 
   getPreviewExcelPageNumbers(): number[] {
@@ -679,7 +719,7 @@ export class AdminPanel implements OnInit {
   }
 
   private loadExcelPreviewRows(workbook: XLSX.WorkBook, sheetNames: string[]) {
-    const combinedRows: Record<string, unknown>[] = [];
+    const combinedRows: PreviewExcelRow[] = [];
     const allColumns = new Set<string>();
 
     sheetNames.forEach((sheetName) => {

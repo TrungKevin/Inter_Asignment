@@ -12,7 +12,9 @@ import org.example.dto.response.ProfileResponse;
 import org.example.service.ProfileService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,5 +40,11 @@ public class ProfileController {
         return ApiResponse.<PagedProfilesResponse>builder()
                 .result(profileService.getProfilesPage(pageable))
                 .build();
+    }
+
+    @DeleteMapping("/profiles/{userId}")
+    ApiResponse<Void> deleteUser(@PathVariable String userId) {
+        profileService.deleteUserById(userId);
+        return ApiResponse.<Void>builder().build();
     }
 }

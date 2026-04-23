@@ -46,7 +46,20 @@ export class Login implements OnInit {
   showForgotPasswordForm = signal(false);
   oauthLoading = signal(false);
 
+  private resolvePostLoginUrl(): string {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (!returnUrl || !returnUrl.trim()) {
+      return '/home';
+    }
+    return returnUrl.startsWith('/') ? returnUrl : '/home';
+  }
+
   ngOnInit() {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigateByUrl(this.resolvePostLoginUrl());
+      return;
+    }
+
     const code = this.route.snapshot.queryParamMap.get('code');
     const error = this.route.snapshot.queryParamMap.get('error');
     if (error) {
@@ -63,7 +76,7 @@ export class Login implements OnInit {
           if (res.result?.access_token) {
             this.authService.setAccessToken(res.result.access_token);
             this.snackBar.open('Dang nhap Google thanh cong!', 'Dong', { duration: 3000 });
-            this.router.navigate(['/home']);
+            this.router.navigateByUrl(this.resolvePostLoginUrl());
           } else {
             this.snackBar.open('Khong nhan duoc token. Vui long kiem tra backend exchange.', 'Dong', { duration: 5000 });
           }
@@ -132,7 +145,7 @@ export class Login implements OnInit {
       this.authService.login(username!, password!).subscribe({
         next: () => {
           this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
-          this.router.navigate(['/home']);
+          this.router.navigateByUrl(this.resolvePostLoginUrl());
         },
         error: (err) => {
           this.loading.set(false);

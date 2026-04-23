@@ -28,17 +28,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
+//dùng cho xuất report theo job
+//tạo job trước, xử lý nền, client poll trạng thái và tải file khi xong.
 public class ReportExportJobController {
 
     private final ExportJobService exportJobService;
 
     @PostMapping("/jobs")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('admin')")//tạo job
     public ResponseEntity<ApiResponse<ExportJobStatusResponse>> createExportJob(
             @Valid @RequestBody CreateExportJobRequest request,
-            Authentication authentication
+            Authentication authentication// xác định user tạo job
     ) {
         String username = resolveUsername(authentication);
+        //gọi service để tạo job
         ExportJobStatusResponse result = exportJobService.createJob(username, request);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(ApiResponse.<ExportJobStatusResponse>builder()
@@ -47,13 +50,14 @@ public class ReportExportJobController {
                         .build());
     }
 
-    @GetMapping("/jobs/{jobId}")
+    @GetMapping("/jobs/{jobId}")// xem trạng thái
     @PreAuthorize("hasRole('admin')")
     public ApiResponse<ExportJobStatusResponse> getExportJob(
             @PathVariable UUID jobId,
             Authentication authentication
     ) {
         String username = resolveUsername(authentication);
+        //gọi service để lấy trạng thái job
         ExportJobStatusResponse result = exportJobService.getJobForUser(jobId, username);
         return ApiResponse.<ExportJobStatusResponse>builder()
                 .code(1000)
@@ -62,12 +66,13 @@ public class ReportExportJobController {
     }
 
     @GetMapping("/jobs/{jobId}/download")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('admin')")// tải file khi completed
     public ResponseEntity<Resource> downloadExportJob(
             @PathVariable UUID jobId,
             Authentication authentication
     ) {
         String username = resolveUsername(authentication);
+        //gọi service để tải file
         ExportJobDownloadResult download = exportJobService.prepareDownload(jobId, username);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -76,8 +81,10 @@ public class ReportExportJobController {
                 .body(download.getResource());
     }
 
+    //hàm này để lấy username từ token
     private String resolveUsername(Authentication authentication) {
-        if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+        
+        if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {//kiểm tra xem authentication có phải là JwtAuthenticationToken không
             String preferredUsername = jwtAuthenticationToken.getToken().getClaimAsString("preferred_username");
             if (preferredUsername != null && !preferredUsername.isBlank()) {
                 return preferredUsername;

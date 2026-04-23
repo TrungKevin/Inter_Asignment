@@ -36,6 +36,7 @@ public class CamundaTaskApplicationService {// set biến
     private final RuntimeService runtimeService;
     private final AccessRequestService accessRequestService;
 
+    //hàm này để lấy danh sách task chờ duyệt
     public List<TaskResponseDTO> getPendingTasks(
             Authentication authentication,
             String assignee,
@@ -75,7 +76,7 @@ public class CamundaTaskApplicationService {// set biến
                     .singleResult();//lấy process instance từ process instance id
 
             String tid = task.getId();
-            return TaskResponseDTO.builder()
+            return TaskResponseDTO.builder()//tạo task response dto
                     .taskId(tid)
                     .taskName(task.getName())
                     .taskDefinitionKey(task.getTaskDefinitionKey())
@@ -174,6 +175,7 @@ public class CamundaTaskApplicationService {// set biến
         }
     }
 
+    //hàm này để kiểm tra xem user có quyền hoàn thành task không
     private void assertMayCompleteTask(Task task, Authentication authentication) {
         if (authentication == null) {
             throw new IllegalArgumentException("Error: authentication is required.");
@@ -193,6 +195,7 @@ public class CamundaTaskApplicationService {// set biến
         throw new AppException(ErrorCode.UNAUTHORIZED);
     }
 
+    //hàm này để đọc biến từ task 
     private String readVariableAsString(String taskId, String name) {
         try {
             Object raw = taskService.getVariable(taskId, name);
@@ -206,6 +209,7 @@ public class CamundaTaskApplicationService {// set biến
         }
     }
 
+    //hàm này để lấy request id từ task
     private Long resolveRequestId(String taskId) {
         Object rawRequestId = taskService.getVariable(taskId, "requestId");
         if (!(rawRequestId instanceof Number requestIdNumber)) {
@@ -214,6 +218,7 @@ public class CamundaTaskApplicationService {// set biến
         return requestIdNumber.longValue();
     }
 
+    //hàm này để chuẩn hóa action từ request
     private String normalizeAdminAction(TaskCompleteRequest request) {
         if (request.getAction() != null && !request.getAction().isBlank()) {
             return request.getAction().trim().toUpperCase();
@@ -226,6 +231,7 @@ public class CamundaTaskApplicationService {// set biến
         );
     }
 
+    //hàm này để lấy assignee từ authentication
     private String resolveAssignee(Authentication authentication, String assigneeOverride) {//lấy assignee từ authentication
         if (assigneeOverride != null && !assigneeOverride.isBlank()) {//nếu có assignee override thì lấy assignee override
             return assigneeOverride.trim();
@@ -245,6 +251,7 @@ public class CamundaTaskApplicationService {// set biến
         return "admin";
     }
 
+    //hàm này để kiểm tra xem user có phải là admin không
     private boolean isAdmin(Authentication authentication) {//kiểm tra xem user có phải là admin không
         if (authentication == null || authentication.getAuthorities() == null) {//nếu authentication không phải là null và không phải là blank thì lấy authorities từ authentication
             return false;
@@ -252,22 +259,28 @@ public class CamundaTaskApplicationService {// set biến
         return authentication.getAuthorities().stream()
                 .anyMatch(authority -> "ROLE_admin".equalsIgnoreCase(authority.getAuthority()));
     }
-
+    
+    //hàm này để kiểm tra xem task có phải là task admin approve không
     private boolean isAdminApproveTaskKey(String taskDefinitionKey) {
         return TASK_ADMIN_APPROVE.equals(taskDefinitionKey)
                 || TASK_ADMIN_APPROVE_LEGACY.equals(taskDefinitionKey);
     }
 
+    //hàm này để kiểm tra xem task có phải là task user clarify không
+    //clarify là bổ sung thông tin
     private boolean isUserClarifyTaskKey(String taskDefinitionKey) {
         return TASK_USER_CLARIFY.equals(taskDefinitionKey)
                 || TASK_USER_CLARIFY_BPMN.equals(taskDefinitionKey);
     }
 
+    //hàm này để kiểm tra xem task có phải là task user counter response không
     private boolean isUserCounterTaskKey(String taskDefinitionKey) {
         return TASK_USER_COUNTER_RESPONSE.equals(taskDefinitionKey)
                 || TASK_USER_COUNTER_RESPONSE_BPMN.equals(taskDefinitionKey);
     }
 
+    //hàm này để kiểm tra xem task có phải là task user counter response không
+    //counter response là phản hồi counter
     private boolean matchesTaskDefinitionKey(String actual, String expected) {
         if (actual == null || expected == null) {
             return false;

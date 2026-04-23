@@ -194,6 +194,7 @@ public class AccessRequestService {
         saveHistory(requestId, action, comment, "admin");
     }
 
+    //hàm này để lưu lịch sử
     private void saveHistory(Long requestId, String action, String comment, String actorUsername) {
         RequestHistory history = RequestHistory.builder()
                 .requestId(requestId)
@@ -238,7 +239,7 @@ public class AccessRequestService {
         pushWebSocketNotification(request, STATUS_COUNTER_PROPOSED, "Admin da gui de xuat dieu chinh quyen, vui long xac nhan.");
     }
 
-    /** User dong y counter tren BPMN → quay lai task admin duyet lan cuoi (khong cap quyen ngay). */
+    //hàm này để xử lý khi user đồng ý counter
     @Transactional
     public void markPendingApprovalAfterCounterAccept(Long requestId, String userComment) {
         AccessRequest request = repository.findById(requestId)
@@ -249,6 +250,7 @@ public class AccessRequestService {
         saveHistory(requestId, "USER_ACCEPTED_COUNTER",
                 userComment == null ? "" : userComment,
                 request.getRequesterUsername());
+                //gửi notification qua sse và STOMP
         pushWebSocketNotification(request, STATUS_PENDING_APPROVAL,
                 "Ban da dong y de xuat dieu chinh. Admin se xem xet lan cuoi truoc khi cap quyen.");
         webSocketStompNotificationService.pushToAdmins(
@@ -262,6 +264,7 @@ public class AccessRequestService {
                         .build());
     }
 
+    //hàm này để gửi notification qua sse và STOMP
     private void pushWebSocketNotification(AccessRequest request, String type, String message) {
         String username = request.getRequesterUsername();
         if (username == null || username.isBlank()) {
@@ -290,6 +293,7 @@ public class AccessRequestService {
         );
     }
 
+    //hàm này để lấy danh sách role từ payload
     private List<String> extractRoleNames(Map<String, Object> payload) {
         if (payload == null) {
             return List.of();
@@ -312,15 +316,18 @@ public class AccessRequestService {
         return roles;
     }
 
+
     private String extractResourceType(Map<String, Object> payload) {//lấy resource type từ payload
         if (payload == null) {
             return "REALM_ROLE";
         }
+
         Object value = payload.get("resourceType");
         String resourceType = Objects.toString(value, "").trim();
         return resourceType.isEmpty() ? "REALM_ROLE" : resourceType;
     }
 
+    //hàm này để chuẩn hóa requester username
     private String normalizeRequester(AccessRequestDTO dto) {
         String requester = Objects.toString(dto.getRequesterUsername(), "").trim();
         if (requester.isEmpty()) {
@@ -329,6 +336,7 @@ public class AccessRequestService {
         return requester;
     }
 
+    //hàm này để chuẩn hóa department code
     private String normalizeDepartmentCode(AccessRequestDTO dto) {//tương thích nhiều client format
         String departmentCode = Objects.toString(dto.getDepartmentCode(), "").trim();
         if (departmentCode.isEmpty() && dto.getPayload() != null) {
@@ -340,6 +348,7 @@ public class AccessRequestService {
         return departmentCode;
     }
 
+    //hàm này để chuẩn hóa danh sách role
     private List<String> normalizeRoles(AccessRequestDTO dto) {
         List<String> roles = new ArrayList<>();
         if (dto.getRoles() != null) {

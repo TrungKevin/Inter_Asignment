@@ -16,11 +16,13 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+//class này để gọi logic Jasper đã có để export report
 public class ReportOrchestrationService {
 
     private final ReportService reportService;
     private final SimpMessagingTemplate messagingTemplate;
 
+    
     public byte[] fetchAndRenderCombinedReport(ExportJob job, CombinedExportParamsJson params) throws Exception {
         sendProgress(job, 25, "PROCESSING");
         byte[] bytes = reportService.exportCombinedAdminReport(
@@ -32,10 +34,11 @@ public class ReportOrchestrationService {
         sendProgress(job, 75, "PROCESSING");
         return bytes;
     }
-
+    //hàm này để deliver report to storage
     public DeliveryResult deliverToStorage(ExportJob job, byte[] bytes, String storageDir) throws Exception {
         Path dir = Paths.get(storageDir);
         Files.createDirectories(dir);
+        //lấy extension của file
         String ext = "pdf".equalsIgnoreCase(job.getFormat()) ? "pdf" : "xlsx";
         String fileName = job.getId() + "." + ext;
         Path file = dir.resolve(fileName);
@@ -46,6 +49,7 @@ public class ReportOrchestrationService {
                 .build();
     }
 
+    //hàm này để send progress to client
     public void sendProgress(ExportJob job, int percent, String status) {
         WebSocketNotificationEvent event = WebSocketNotificationEvent.builder()
                 .type("REPORT_EXPORT_PROGRESS")

@@ -6,7 +6,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+//service này để gửi message qua STOMP over WebSocket
 public class WebSocketStompNotificationService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;

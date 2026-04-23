@@ -13,11 +13,13 @@ import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
+//Xử lý message qua STOMP over WebSocket 
+//STOMP là protocol để gửi message qua WebSocket. với tên đầy đủ là Simple Text Oriented Messaging Protocol.
 public class WebSocketStompNotificationController {
 
     private final WebSocketStompNotificationService webSocketStompNotificationService;
 
-    @MessageMapping("/notifications/user-to-admin")
+    @MessageMapping("/notifications/user-to-admin")//mapping message từ user đến admin
     public void userToAdmin(WebSocketSendRequest request, Authentication authentication) {
         String sender = resolveUsername(authentication);
         WebSocketNotificationEvent event = WebSocketNotificationEvent.builder()
@@ -51,6 +53,7 @@ public class WebSocketStompNotificationController {
         webSocketStompNotificationService.pushToUser(request.getTargetUsername(), event);
     }
 
+    //hàm này để lấy username từ token để xác định user gửi message
     private String resolveUsername(Authentication authentication) {
         if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
             String preferredUsername = jwtAuthenticationToken.getToken().getClaimAsString("preferred_username");

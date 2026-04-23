@@ -6,14 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Metadata cache trong Redis: map request export sang file đã render trên disk.
- */
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+//class này để lưu metadata cache trong Redis
 public class ReportCacheEntry {
 
     private String storedFileName;

@@ -188,7 +188,10 @@ public class ReportService {
         throw new IllegalArgumentException("Unsupported format: " + format);
     }
 
+    //readOnly = true Hibernate sẽ tắt tính năng "Dirty Checking"
+    //Giúp giảm bớt việc lưu giữ trạng thái của các Object User trong bộ nhớ đệm
     @Transactional(readOnly = true)
+    //hàm xuất file lớn theo stream, giảm giữ dữ liệu trong RAM.
     public void streamDynamicAllUsers(String format, List<String> selectedColumns, OutputStream outputStream) throws IOException {
         String normalizedFormat = format == null ? "" : format.toLowerCase(Locale.ROOT);
         if (!isSupportedJasperFormat(normalizedFormat)) {
@@ -199,6 +202,8 @@ public class ReportService {
         withConcurrencyLimit(normalizedFormat, () -> {
             List<String> normalizedColumns = normalizeColumns(selectedColumns);
             try (ReportVirtualizerContext virtualizerContext = createVirtualizerContext()) {
+                //đưa vào Virtualizer sẽ giới hạn: chỉ giữ lại một số trang nhất định trong RAM, nếu trang đó không cần thiết sẽ được xóa đi.
+                //các trang còn lại sẽ được nén và đẩy xuống ổ cứng (swap).
                 JasperPrint usersPrint = buildUsersPrint(
                         normalizedColumns,
                         "DANH SÁCH NGƯỜI DÙNG",
@@ -207,6 +212,7 @@ public class ReportService {
 
                 if ("pdf".equals(normalizedFormat)) {
                     applyPdfUnicodeProperties(usersPrint);
+                    //render được đẩy thẳng ra luồng phản hồi của mạng (Network socket) thông qua outputStream.
                     exportPdf(usersPrint, outputStream);
                 } else {
                     exportExcel(usersPrint, outputStream);
@@ -220,19 +226,19 @@ public class ReportService {
         });
     }
 
-    /**
-     * Kiểm tra format + bảng + cột trước khi tạo job async (không render Jasper).
-     */
+    //hàm này để validate params có hợp lệ không, chuyển đổi chữ hoa thành chữ thường.
     public void validateCombinedExportParameters(
             String format,
             List<String> tables,
             List<String> userColumns,
             List<String> loginLogColumns
     ) {
+        //hàm này để validate params có hợp lệ không, chuyển đổi chữ hoa thành chữ thường.
         String normalizedFormat = format == null ? "" : format.toLowerCase(Locale.ROOT);
         if (!isSupportedJasperFormat(normalizedFormat)) {
             throw new IllegalArgumentException("Unsupported format: " + format);
         }
+        //normalizedTables là danh sách bảng đã được chuẩn hóa
         List<String> normalizedTables = normalizeTables(tables);
         if (normalizedTables.contains("users")) {
             normalizeColumns(userColumns);
@@ -248,6 +254,7 @@ public class ReportService {
             List<String> userColumns,
             List<String> loginLogColumns
     ) throws Exception {
+        //hàm này để xuất file lớn theo stream, giảm giữ dữ liệu trong RAM.
         List<String> normalizedTables = normalizeTables(tables);
         List<JasperPrint> jasperPrints = new ArrayList<>();
         List<String> sheetNames = new ArrayList<>();
@@ -315,9 +322,10 @@ public class ReportService {
                         ResultSet.CONCUR_READ_ONLY
                 )
         ) {
-            statement.setFetchSize(largeExportFetchSize);
+            statement.setFetchSize(largeExportFetchSize);//set fetch size để đọc dữ liệu từ DB một lượng lớn một lần.
             try (ResultSet resultSet = statement.executeQuery()) {
-                JRResultSetDataSource ds = new JRResultSetDataSource(resultSet);
+                JRResultSetDataSource ds = new JRResultSetDataSource(resultSet);//bọc ResultSet thành JRResultSetDataSource.
+                //gọi DynamicJasperHelper.generateJasperPrint(...) để tạo ra JasperPrint.
                 return DynamicJasperHelper.generateJasperPrint(
                         dr,
                         new ClassicLayoutManager(),
@@ -328,6 +336,7 @@ public class ReportService {
         }
     }
 
+    //hàm này để dựng layout động + gắn dữ liệu, rồi trả về JasperPrint/ Fill data
     private JasperPrint buildLoginLogsPrint(List<String> columns, String title, JRVirtualizer virtualizer) throws Exception {
         Style titleStyle = buildPdfStyle(16, true, HorizontalAlign.CENTER);
         Style headerStyle = buildPdfStyle(12, true, HorizontalAlign.CENTER);
@@ -351,7 +360,7 @@ public class ReportService {
             }
         }
 
-        List<LoginLogReportRow> rows = loginLogRepository.findAll().stream()
+        List<LoginLogReportRow> rows = loginLogRepository.findAll().stream()//lấy dữ liệu từ DB
                 .sorted(Comparator.comparing(LoginLog::getLoginTime, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(this::toLoginLogRow)
                 .toList();
@@ -618,12 +627,12 @@ public class ReportService {
         if (!swapDirectory.exists()) {
             swapDirectory.mkdirs();
         }
-        JRSwapFile swapFile = new JRSwapFile(
+        JRSwapFile swapFile = new JRSwapFile(//tạo file tạm để lưu trữ dữ liệu trang đã render
                 swapDirectory.getAbsolutePath(),
                 virtualizerBlockSize,
                 virtualizerMinGrowCount
         );
-        JRSwapFileVirtualizer virtualizer = new JRSwapFileVirtualizer(
+        JRSwapFileVirtualizer virtualizer = new JRSwapFileVirtualizer(//tạo virtualizer để quản lý việc swap file tạm.
                 virtualizerMaxPagesInMemory,
                 swapFile,
                 true
@@ -631,6 +640,7 @@ public class ReportService {
         return new ReportVirtualizerContext(virtualizer);
     }
 
+    //một wrapper nhỏ để quản lý vòng đời virtualizer
     private record ReportVirtualizerContext(JRSwapFileVirtualizer virtualizer) implements AutoCloseable {
         @Override
         public void close() {

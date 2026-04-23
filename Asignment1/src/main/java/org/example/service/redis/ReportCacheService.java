@@ -20,12 +20,15 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+// class này để quản lý cache Redis cho report mục đích tránh người dùng render lại report nặng.
+//tóm lại chỉ lưu metadata cache vào Redis, file thật được lưu trên disk.
 public class ReportCacheService {
 
     private final StringRedisTemplate redisTemplate;
@@ -46,6 +49,7 @@ public class ReportCacheService {
 
     @Value("${app.report.cache.lock.ttl-seconds:180}")
     private long lockTtlSeconds;
+
 
     public String buildCacheKey(CreateExportJobRequest request, String username) {
         String normalized = String.join("|",
@@ -86,7 +90,9 @@ public class ReportCacheService {
         }
         try {
             String raw = objectMapper.writeValueAsString(entry);
+            //serialize entry thành JSON và ghi vào Redis với TTL
             Duration effectiveTtl = ttl == null ? Duration.ofMinutes(ttlMinutes) : ttl;
+            evictPreviousReportCaches(cacheKey);
             redisTemplate.opsForValue().set(cacheKey, raw, effectiveTtl);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Cannot serialize report cache entry", e);
@@ -99,7 +105,7 @@ public class ReportCacheService {
         }
         redisTemplate.delete(cacheKey);
     }
-
+    //kiểm tra xem cache còn sử dụng được không
     public boolean isReusable(ReportCacheEntry entry) {
         if (entry == null) {
             return false;
@@ -110,21 +116,22 @@ public class ReportCacheService {
                 && entry.getExpiresAtEpochMs() > now;
     }
 
+    //lấy thời gian sống của cache
     public Duration defaultTtl() {
         return Duration.ofMinutes(ttlMinutes);
     }
-
+    
     public boolean isCacheEnabled() {
         return cacheEnabled;
     }
-
+    //kiểm tra xem cache có bật không
     public Optional<String> tryAcquireRenderLock(String cacheKey) {
         if (!cacheEnabled) {
             return Optional.empty();
         }
         String lockKey = lockKey(cacheKey);
         String lockToken = UUID.randomUUID().toString();
-        Boolean ok = redisTemplate.opsForValue().setIfAbsent(
+        Boolean ok = redisTemplate.opsForValue().setIfAbsent(//setIfAbsent là set nếu không có, nếu có thì không set
                 lockKey,
                 lockToken,
                 Duration.ofSeconds(lockTtlSeconds)
@@ -132,6 +139,7 @@ public class ReportCacheService {
         return Boolean.TRUE.equals(ok) ? Optional.of(lockToken) : Optional.empty();
     }
 
+    //giải phóng lock render Redis
     public void releaseRenderLock(String cacheKey, String lockToken) {
         if (!cacheEnabled) {
             return;
@@ -147,13 +155,33 @@ public class ReportCacheService {
         return cacheKey + ":lock";
     }
 
+    // Khi có report cache mới, xóa các report cache cũ để chỉ giữ bản mới nhất.
+    private void evictPreviousReportCaches(String currentCacheKey) {
+        String pattern = keyPrefix + ":*";
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
+
+        List<String> staleKeys = keys.stream()
+                .filter(key -> !key.endsWith(":lock"))
+                .filter(key -> !key.equals(currentCacheKey))
+                .toList();
+        if (staleKeys.isEmpty()) {
+            return;
+        }
+
+        Long deleted = redisTemplate.delete(staleKeys);
+        log.debug("Evicted old report cache keys count={}", deleted == null ? 0 : deleted);
+    }
+    //chuẩn hóa value
     private static String normalizeSimple(String value) {
         if (value == null) {
             return "";
         }
         return value.trim().toLowerCase(Locale.ROOT);
     }
-
+    //chuẩn hóa list
     private static String normalizeList(List<String> list) {
         if (list == null || list.isEmpty()) {
             return "";
@@ -170,6 +198,7 @@ public class ReportCacheService {
                 .collect(Collectors.joining(","));
     }
 
+    //hash raw thành SHA-256 để lấy key cache nhằm tránh collision và sử dụng như một hash function 
     private static String sha256Hex(String raw) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

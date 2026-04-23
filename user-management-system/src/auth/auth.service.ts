@@ -150,6 +150,10 @@ export class AuthService {
     return this.http.get<ApiResponse<PagedProfilesResponse>>(`${this.apiUrl}/profiles`, { params });
   }
 
+  deleteProfile(userId: string): Observable<ApiResponse<null>> {
+    return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/profiles/${userId}`);
+  }
+
   getAdminLoginLogs(): Observable<ApiResponse<LoginLogResponse[]>> {
     return this.http.get<ApiResponse<LoginLogResponse[]>>(`${this.apiUrl}/api/admin/login-logs`);
   }

@@ -30,6 +30,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+//quyết định có cần render không, tạo job gì, trả trạng thái gì cho client.
 public class ExportJobService {
 
     private final ExportJobRepository exportJobRepository;
@@ -47,7 +48,7 @@ public class ExportJobService {
     @Value("${app.report.cache.lock.poll-interval-ms:500}")
     private long lockPollIntervalMs;
 
-    // hàm tạo job: validate params, build cache key, check cache, create job, run export
+    // hàm tạo job: validate params, build cache key Redis, check cache, create job, run export
     public ExportJobStatusResponse createJob(String username, CreateExportJobRequest request) {
         if (request.getReportType() != ReportExportJobType.ADMIN_COMBINED) {//chỉ cho phép reportType là ADMIN_COMBINED
             throw new IllegalArgumentException("Unsupported reportType: " + request.getReportType());
@@ -66,12 +67,11 @@ public class ExportJobService {
         params.setLoginColumns(request.getLoginColumns());
 
         String paramsJson;
-        try {
+        try {//serialize params thành JSON
             paramsJson = objectMapper.writeValueAsString(params);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {//nếu lỗi thì throw exception
             throw new IllegalStateException("Cannot serialize export params", e);
         }
-
         //kiểm tra cache
         String normalizedFormat = request.getFormat().toLowerCase(Locale.ROOT);
         String cacheKey = reportCacheService.buildCacheKey(request, username);
