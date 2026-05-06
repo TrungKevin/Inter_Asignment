@@ -3,7 +3,7 @@ import {
   require_inherits,
   require_ms,
   require_supports_color
-} from "./chunk-3OVBXDCK.js";
+} from "./chunk-AZ6EADK6.js";
 import {
   __commonJS,
   __require

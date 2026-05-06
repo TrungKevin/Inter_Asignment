@@ -115,12 +115,17 @@ export class AuthService {
 
     const redirectUri = `${window.location.origin}/login`;
     const authEndpoint = `${this.keycloakBaseUrl}/realms/${this.keycloakRealm}/protocol/openid-connect/auth`;
+    const state = crypto?.randomUUID?.() ?? `${Date.now()}`;
     const params = new URLSearchParams({
       client_id: this.keycloakClientId,
       redirect_uri: redirectUri,
       response_type: 'code',
       scope: 'openid',
-      kc_idp_hint: 'google'
+      kc_idp_hint: 'google',
+      // Force Google account chooser every click, avoid silently reusing previous session.
+      prompt: 'select_account',
+      max_age: '0',
+      state
     });
 
     window.location.href = `${authEndpoint}?${params.toString()}`;

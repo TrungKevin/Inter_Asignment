@@ -14,7 +14,7 @@ View your app in AI Studio: https://ai.studio/apps/dc65a1a2-6a85-411c-874c-12916
 
 
 1. Install dependencies:
-   `npm install`
+   `choco install nodejs-lts -y`
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
